@@ -45,6 +45,39 @@ def init_db():
     conn.close()
     print("✅ 数据库初始化完成（created_at 默认 SGT）")
 
+def get_all_news_by_category(category: str, skip=0, limit=20):
+    conn = get_conn()
+    cur = conn.cursor()
+    if category.lower() == "all":
+        cur.execute("""
+            SELECT id, title, content, link, image_url, created_at
+            FROM news
+            ORDER BY created_at DESC
+            LIMIT %s OFFSET %s
+        """, (limit, skip))
+    else:
+        cur.execute("""
+            SELECT id, title, content, link, image_url, created_at
+            FROM news
+            WHERE category=%s
+            ORDER BY created_at DESC
+            LIMIT %s OFFSET %s
+        """, (category, limit, skip))
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+    news = []
+    for row in rows:
+        news.append({
+            "id": row[0],
+            "title": row[1],
+            "content": row[2],
+            "link": row[3],
+            "image_url": row[4],
+            "created_at": row[5],
+        })
+    return news
+
 def insert_news(title, content, link=None, image_url=None):
     if not title or not content:
         print("⚠️ 跳过插入：title 或 content 为空")
