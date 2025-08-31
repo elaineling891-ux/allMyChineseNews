@@ -36,7 +36,7 @@ async def periodic_fetch_news(interval=43200):
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
     news = get_all_news()  # 从数据库获取新闻
-    return templates.TemplateResponse("index.html", {
+    return templates.TemplateResponse("main.html", {  # 改这里
         "request": request,
         "news": news,
         "year": datetime.now().year
