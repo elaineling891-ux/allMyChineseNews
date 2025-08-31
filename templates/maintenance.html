@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>News Maintenance</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        form {
+            display: inline;
+        }
+        input[type="text"], textarea {
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .btn {
+            padding: 5px 10px;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-update {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .btn-delete {
+            background-color: #f44336;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h2>News Maintenance</h2>
+    <table>
+        <thead>
+            <tr>
+                {% for col in columns %}
+                <th>{{ col }}</th>
+                {% endfor %}
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in rows %}
+            <tr>
+                <form method="post" action="/update/{{ row[0] }}">
+                    {% for col, value in zip(columns, row) %}
+                        {% if col == "id" or col == "created_at" %}
+                            <td>{{ value }}</td>
+                        {% elif col == "content" %}
+                            <td><textarea name="content">{{ value }}</textarea></td>
+                        {% else %}
+                            <td><input type="text" name="{{ col }}" value="{{ value }}"></td>
+                        {% endif %}
+                    {% endfor %}
+                    <td>
+                        <button type="submit" class="btn btn-update">Update</button>
+                </form>
+                <form method="post" action="/delete/{{ row[0] }}" onsubmit="return confirm('Delete this item?');">
+                        <button type="submit" class="btn btn-delete">Delete</button>
+                </form>
+                    </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

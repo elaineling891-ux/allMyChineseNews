@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>新闻后台管理</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 30px; }
+        input, textarea { width: 100%; padding: 8px; margin: 5px 0; }
+        button { padding: 10px 20px; }
+        .message { margin-top: 10px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>新闻后台管理</h1>
+    <form method="post">
+        <label>标题:</label>
+        <input type="text" name="title" required>
+
+        <label>内容:</label>
+        <textarea name="content" rows="5" required></textarea>
+
+        <label>链接 (可选):</label>
+        <input type="text" name="link">
+
+        <label>图片 URL (可选):</label>
+        <input type="text" name="image_url">
+
+        <button type="submit">提交新闻</button>
+    </form>
+
+    {% if message %}
+        <div class="message">{{ message }}</div>
+    {% endif %}
+</body>
+</html>

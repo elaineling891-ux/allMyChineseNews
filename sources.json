@@ -1,0 +1,26 @@
+[
+  {
+    "name": "Yahoo新闻（国际）",
+    "url": "https://tw.news.yahoo.com/world/",
+    "list_selector": "a.stream-item-title",
+    "attr": "href",
+    "prefix": "https://tw.news.yahoo.com",
+    "limit": 12
+  },
+  {
+    "name": "自由时报（国际）",
+    "url": "https://news.ltn.com.tw/list/breakingnews/world",
+    "list_selector": "ul.list li a.tit",
+    "attr": "href",
+    "prefix": "",
+    "limit": 12
+  },
+  {
+    "name": "联合新闻网（要闻速览）",
+    "url": "https://udn.com/news/breaknews/2/0#breaknews",
+    "list_selector": ".story-list__news a",
+    "attr": "href",
+    "prefix": "https://udn.com",
+    "limit": 12
+  }
+]
