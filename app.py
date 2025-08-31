@@ -1,6 +1,6 @@
 import asyncio
 import os
-from fastapi import FastAPI, Request, Form, HTTPException
+from fastapi import FastAPI, Request, Form, HTTPException, Path
 from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from db import get_all_news, init_db, get_news_by_id, insert_news, update_news, delete_news, get_all_db
@@ -39,6 +39,17 @@ async def home(request: Request):
     return templates.TemplateResponse("index.html", {
         "request": request,
         "news": news,
+        "year": datetime.now().year
+    })
+
+@app.get("/category/{category}", response_class=HTMLResponse)
+async def category_page(request: Request, category: str = Path(...)):
+    # 从数据库获取该分类新闻
+    news = get_all_news_by_category(category, skip=0, limit=50)  # 你可以调整最大显示条数
+    return templates.TemplateResponse("category.html", {
+        "request": request,
+        "news": news,
+        "category": category,
         "year": datetime.now().year
     })
 
