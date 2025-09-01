@@ -13,6 +13,7 @@
         .news-item img { width:100%; height:150px; object-fit:cover; border-radius:4px; }
         .news-item h3 { font-size:16px; margin:8px 0 4px; }
         .news-item p { font-size:13px; color:#555; }
+        .loading { text-align:center; margin:20px; color:#555; }
         footer { text-align:center; padding:20px; background:#222; color:#fff; margin-top:40px; }
         footer a { color:#fff; text-decoration:none; margin:0 4px; }
         footer a:hover { text-decoration:underline; }
@@ -24,21 +25,11 @@
         <a href="/">返回首页</a>
     </header>
 
-    <div class="news-list">
-        {% if news %}
-            {% for item in news %}
-            <div class="news-item">
-                {% if item.image_url %}
-                    <img src="{{ item.image_url }}" alt="">
-                {% endif %}
-                <h3><a href="/news/{{ item.id }}">{{ item.title }}</a></h3>
-                <p>{{ item.content[:100] }}...</p>
-            </div>
-            {% endfor %}
-        {% else %}
-            <p style="margin:20px;">暂无新闻</p>
-        {% endif %}
+    <div class="news-list" id="news-list">
+        <!-- 新闻条目会通过 JS 加载 -->
     </div>
+
+    <div class="loading" id="loading">加载中...</div>
 
     <footer>
       &copy; <span id="year"></span> 我的新闻聚合 | Powered by FastAPI <br>
@@ -51,6 +42,57 @@
 
     <script>
         document.getElementById('year').textContent = new Date().getFullYear();
+
+        let page = 1;                 // 当前页码
+        const pageSize = 10;          // 每次加载条数
+        let loading = false;          // 是否正在加载
+        let noMore = false;           // 是否没有更多新闻
+        const newsList = document.getElementById('news-list');
+        const loadingDiv = document.getElementById('loading');
+
+        async function loadNews() {
+            if (loading || noMore) return;
+            loading = true;
+            loadingDiv.textContent = '加载中...';
+
+            try {
+                const res = await fetch(`/api/news?category={{ category }}&page=${page}&limit=${pageSize}`);
+                const data = await res.json();
+
+                if (data.news.length === 0) {
+                    noMore = true;
+                    loadingDiv.textContent = '没有更多新闻了';
+                    return;
+                }
+
+                data.news.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'news-item';
+                    div.innerHTML = `
+                        ${item.image_url ? `<img src="${item.image_url}" alt="">` : ""}
+                        <h3><a href="/news/${item.id}">${item.title}</a></h3>
+                        <p>${item.content.slice(0,100)}...</p>
+                    `;
+                    newsList.appendChild(div);
+                });
+
+                page++;
+                loading = false;
+            } catch (err) {
+                console.error(err);
+                loadingDiv.textContent = '加载失败，请刷新重试';
+            }
+        }
+
+        function handleScroll() {
+            if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 200) {
+                loadNews();
+            }
+        }
+
+        // 初始加载第一页新闻
+        loadNews();
+        window.addEventListener('scroll', handleScroll);
     </script>
 </body>
 </html>
