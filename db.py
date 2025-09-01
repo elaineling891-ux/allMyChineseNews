@@ -44,6 +44,18 @@ def init_db():
     conn.close()
     print("✅ 数据库初始化完成（created_at 默认 SGT）")
 
+def news_exists(link: str) -> bool:
+    """检查某条新闻的 link 是否已存在数据库"""
+    if not link:
+        return False
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("SELECT 1 FROM news WHERE link=%s LIMIT 1", (link,))
+    exists = cur.fetchone() is not None
+    cur.close()
+    conn.close()
+    return exists
+
 def insert_news(title, content, link=None, image_url=None):
     if not title or not content:
         return
