@@ -16,7 +16,6 @@ templates = Jinja2Templates(directory="templates")
 async def startup_event():
     init_db()
     asyncio.create_task(periodic_keep_alive(300))
-    asyncio.create_task(periodic_fetch_news(43200))
 
 async def periodic_fetch_news(interval=43200):
     while True:
