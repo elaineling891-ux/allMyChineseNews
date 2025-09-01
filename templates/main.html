@@ -130,21 +130,20 @@
             oldSlides.forEach(s => s.remove());
             dotsContainer.innerHTML = "";
 
-            slides.forEach((item, idx) => {
+           slides.forEach((item, idx) => {
                 const div = document.createElement("div");
                 div.className = "slide";
                 div.innerHTML = `
-                    ${item.image_url ? `<img src="${item.image_url}" alt="">` : ""}
+                    ${item.image_url ? `<a href="/news/${item.id}"><img src="${item.image_url}" alt=""></a>` : ""}
                     <div class="caption"><a href="/news/${item.id}" style="color:#fff; text-decoration:none;">${item.title}</a></div>
                 `;
                 carousel.insertBefore(div, dotsContainer);
-
+            
                 const dot = document.createElement("span");
                 dot.className = "dot";
                 dot.onclick = () => { carouselIndex = idx; showSlide(carouselIndex); };
                 dotsContainer.appendChild(dot);
             });
-
             showSlide(carouselIndex);
             setInterval(() => { nextSlide(); }, 5000);
         }
