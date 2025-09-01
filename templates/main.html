@@ -1,223 +1,211 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-    <meta charset="UTF-8">
-    <title>新闻首页</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- AdSense -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2460023182833054"
-     crossorigin="anonymous"></script>
-    <style>
-        body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f5f5f5; display:flex; justify-content:center; }
-        .container { width:100%; max-width:1024px; }
+<meta charset="UTF-8">
+<title>新闻首页</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- AdSense -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2460023182833054" crossorigin="anonymous"></script>
+<style>
+body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f5f5f5; display:flex; justify-content:center; }
+.container { width:100%; max-width:1024px; }
 
-        header { background:#222; color:#fff; padding:10px 20px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; }
-        header h1 { margin:0; font-size:20px; }
-        nav { display:flex; flex-wrap:wrap; gap:10px; }
-        nav a { color:#fff; text-decoration:none; font-size:14px; padding:4px 8px; border-radius:4px; transition:background 0.2s; }
-        nav a:hover { background:rgba(255,255,255,0.2); }
+header { background:#222; color:#fff; padding:10px 20px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; }
+header h1 { margin:0; font-size:20px; }
+nav { display:flex; flex-wrap:wrap; gap:10px; }
+nav a { color:#fff; text-decoration:none; font-size:14px; padding:4px 8px; border-radius:4px; transition:background 0.2s; }
+nav a:hover { background:rgba(255,255,255,0.2); }
 
-        /* 轮播样式 */
-        #carousel { position:relative; width:100%; max-height:300px; overflow:hidden; margin-top:10px; }
-        #carousel .slide { display:none; position:relative; }
-        #carousel img { width:100%; height:300px; object-fit:cover; }
-        #carousel .caption { position:absolute; bottom:10px; left:10px; right:10px; color:#fff; background:rgba(0,0,0,0.5); padding:8px; border-radius:4px; font-size:14px; }
+/* 轮播样式 */
+#carousel { position:relative; width:100%; max-height:300px; overflow:hidden; margin-top:10px; }
+#carousel .slide { display:none; position:relative; }
+#carousel img { width:100%; height:300px; object-fit:cover; }
+#carousel .caption { position:absolute; bottom:10px; left:10px; right:10px; color:#fff; background:rgba(0,0,0,0.5); padding:8px; border-radius:4px; font-size:14px; }
 
-        /* 箭头 */
-        .prev, .next {
-            cursor:pointer;
-            position:absolute;
-            top:50%;
-            transform:translateY(-50%);
-            color:white;
-            font-weight:bold;
-            font-size:20px;
-            padding:8px;
-            background:rgba(0,0,0,0.3);
-            border-radius:50%;
-            z-index:10;
-        }
-        .prev { left:10px; } .next { right:10px; }
+/* 箭头 */
+.prev, .next { cursor:pointer; position:absolute; top:50%; transform:translateY(-50%); color:white; font-weight:bold; font-size:20px; padding:8px; background:rgba(0,0,0,0.3); border-radius:50%; z-index:10; }
+.prev { left:10px; } .next { right:10px; }
 
-        /* 圆点导航 */
-        .dots { text-align:center; position:absolute; bottom:10px; width:100%; }
-        .dot { cursor:pointer; height:10px; width:10px; margin:0 3px; background:#bbb; border-radius:50%; display:inline-block; transition:background 0.3s; }
-        .dot.active { background:#717171; }
+/* 圆点导航 */
+.dots { text-align:center; position:absolute; bottom:10px; width:100%; }
+.dot { cursor:pointer; height:10px; width:10px; margin:0 3px; background:#bbb; border-radius:50%; display:inline-block; transition:background 0.3s; }
+.dot.active { background:#717171; }
 
-        /* 分类模块 */
-        .category-section { margin:10px 0 20px 0; }
-        .category-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
-        .category-header h2 { margin:0; font-size:16px; }
-        .category-header a.see-more { display:block; }
+/* 分类模块 */
+.category-section { margin:10px 0 20px 0; }
+.category-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+.category-header h2 { margin:0; font-size:16px; }
+.category-header a.see-more { display:block; }
 
-        /* 新闻网格 */
-        .category-news { display:grid; gap:10px; }
-        .news-item { background:#fff; padding:6px; border-radius:4px; box-shadow:0 1px 3px rgba(0,0,0,0.1); font-size:13px; }
-        .news-item img { width:100%; height:120px; object-fit:cover; border-radius:4px; }
-        .news-item h3 { font-size:14px; margin:4px 0 2px; }
-        .news-item p { font-size:12px; color:#555; }
+/* 新闻网格 */
+.category-news { display:grid; gap:10px; }
+.news-item { background:#fff; padding:6px; border-radius:4px; box-shadow:0 1px 3px rgba(0,0,0,0.1); font-size:13px; }
+.news-item img { width:100%; height:120px; object-fit:cover; border-radius:4px; }
+.news-item h3 { font-size:14px; margin:4px 0 2px; }
+.news-item p { font-size:12px; color:#555; }
 
-        /* 广告位 */
-        .ad-container { margin:10px 0; text-align:center; }
+/* 广告位 */
+.ad-container { margin:10px 0; text-align:center; }
 
-        footer { text-align:center; padding:15px; background:#222; color:#fff; margin-top:20px; font-size:12px; }
-        footer a { color:#fff; text-decoration:none; margin:0 4px; }
-        footer a:hover { text-decoration:underline; }
+footer { text-align:center; padding:15px; background:#222; color:#fff; margin-top:20px; font-size:12px; }
+footer a { color:#fff; text-decoration:none; margin:0 4px; }
+footer a:hover { text-decoration:underline; }
 
-        /* 电脑版调整 */
-        @media screen and (min-width:601px){
-            .category-news { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:6px; }
-            .category-header a.see-more { margin-top:4px; font-size:13px; }
-        }
+/* 电脑版调整 */
+@media screen and (min-width:601px){
+    .category-news { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:6px; }
+    .category-header a.see-more { margin-top:4px; font-size:13px; }
+}
 
-        /* 手机版保持原样，只显示图片和标题 */
-        @media screen and (max-width:600px){
-            #carousel img { height:200px; }
-            .category-news { grid-template-columns:1fr; gap:10px; }
-            .category-header a.see-more { margin-top:10px; font-size:14px; }
-            .news-item p { display:none; } /* 不显示内容 */
-        }
-    </style>
+/* 手机版调整：左右布局，只显示图片和标题 */
+@media screen and (max-width:600px){
+    #carousel img { height:200px; }
+    .category-news { grid-template-columns:1fr; gap:10px; }
+    .category-header a.see-more { margin-top:10px; font-size:14px; }
+
+    .news-item { display:flex; align-items:center; gap:10px; padding:4px; }
+    .news-item img { width:100px; height:80px; }
+    .news-item p { display:none; }
+    .news-item h3 { margin:0; font-size:14px; flex:1; }
+}
+</style>
 </head>
 <body>
 <div class="container">
-    <header>
-        <h1>🌐 我的新闻网站</h1>
-        <nav>
-            <a href="/">首页</a>
-            <a href="/category/国内">国内</a>
-            <a href="/category/国际">国际</a>
-            <a href="/category/娱乐">娱乐</a>
-            <a href="/category/体育">体育</a>
-            <a href="/category/经济">经济</a>
-        </nav>
-    </header>
+<header>
+    <h1>🌐 我的新闻网站</h1>
+    <nav>
+        <a href="/">首页</a>
+        <a href="/category/国内">国内</a>
+        <a href="/category/国际">国际</a>
+        <a href="/category/娱乐">娱乐</a>
+        <a href="/category/体育">体育</a>
+        <a href="/category/经济">经济</a>
+    </nav>
+</header>
 
-    <!-- 轮播图 -->
-    <div id="carousel">
-        <span class="prev" onclick="prevSlide()">&#10094;</span>
-        <span class="next" onclick="nextSlide()">&#10095;</span>
-        <div class="dots" id="carousel-dots"></div>
-    </div>
+<!-- 轮播图 -->
+<div id="carousel">
+    <span class="prev" onclick="prevSlide()">&#10094;</span>
+    <span class="next" onclick="nextSlide()">&#10095;</span>
+    <div class="dots" id="carousel-dots"></div>
+</div>
 
-    <!-- 首页广告 -->
-    <div class="ad-container">
-        <ins class="adsbygoogle"
-             style="display:block"
-             data-ad-client="ca-pub-2460023182833054"
-             data-ad-slot="1234567890"
-             data-ad-format="auto"
-             data-full-width-responsive="true"></ins>
-        <script>
-             (adsbygoogle = window.adsbygoogle || []).push({});
-        </script>
-    </div>
+<!-- 首页广告 -->
+<div class="ad-container">
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-2460023182833054"
+         data-ad-slot="1234567890"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+</div>
 
-    <!-- 分类模块 -->
-    <div id="categories-container"></div>
+<!-- 分类模块 -->
+<div id="categories-container"></div>
 
-    <footer>
-      &copy; <span id="year"></span> 我的新闻聚合 | Powered by FastAPI <br>
-      <a href="/about">关于我们</a> | 
-      <a href="/contact">联系方式</a> | 
-      <a href="/privacy">隐私政策</a> |
-      <a href="/terms">服务条款</a> |
-      <a href="/disclaimer">免责声明</a>
-    </footer>
+<footer>
+  &copy; <span id="year"></span> 我的新闻聚合 | Powered by FastAPI <br>
+  <a href="/about">关于我们</a> | 
+  <a href="/contact">联系方式</a> | 
+  <a href="/privacy">隐私政策</a> |
+  <a href="/terms">服务条款</a> |
+  <a href="/disclaimer">免责声明</a>
+</footer>
 </div>
 
 <script>
-    document.getElementById('year').textContent = new Date().getFullYear();
+document.getElementById('year').textContent = new Date().getFullYear();
+const categories = ["国内","国际","娱乐","体育","经济"];
+let carouselIndex = 0;
+let slides = [];
 
-    const categories = ["国内","国际","娱乐","体育","经济"];
-    let carouselIndex = 0;
-    let slides = [];
+async function loadCarousel() {
+    const res = await fetch(`/api/news?category=all&limit=5`);
+    const data = await res.json();
+    slides = data.news;
+    const carousel = document.getElementById("carousel");
+    const dotsContainer = document.getElementById("carousel-dots");
 
-    async function loadCarousel() {
-        const res = await fetch(`/api/news?category=all&limit=5`);
+    const oldSlides = carousel.querySelectorAll('.slide');
+    oldSlides.forEach(s => s.remove());
+    dotsContainer.innerHTML = "";
+
+    slides.forEach((item, idx) => {
+        const div = document.createElement("div");
+        div.className = "slide";
+        div.innerHTML = `
+            ${item.image_url ? `<a href="/news/${item.id}"><img src="${item.image_url}" alt=""></a>` : ""}
+            <div class="caption"><a href="/news/${item.id}" style="color:#fff; text-decoration:none;">${item.title}</a></div>
+        `;
+        carousel.insertBefore(div, dotsContainer);
+    
+        const dot = document.createElement("span");
+        dot.className = "dot";
+        dot.onclick = () => { carouselIndex = idx; showSlide(carouselIndex); };
+        dotsContainer.appendChild(dot);
+    });
+    showSlide(carouselIndex);
+    setInterval(() => { nextSlide(); }, 5000);
+}
+
+function showSlide(n) {
+    const slideElems = document.getElementsByClassName("slide");
+    const dots = document.getElementsByClassName("dot");
+    for(let i=0;i<slideElems.length;i++){
+        slideElems[i].style.display="none";
+        dots[i].classList.remove("active");
+    }
+    if(slideElems[n]) slideElems[n].style.display="block";
+    if(dots[n]) dots[n].classList.add("active");
+}
+
+function nextSlide() {
+    carouselIndex = (carouselIndex + 1) % slides.length;
+    showSlide(carouselIndex);
+}
+
+function prevSlide() {
+    carouselIndex = (carouselIndex - 1 + slides.length) % slides.length;
+    showSlide(carouselIndex);
+}
+
+async function loadCategorySections() {
+    const container = document.getElementById("categories-container");
+    container.innerHTML = "";
+    for(let cat of categories){
+        const res = await fetch(`/api/news?category=${cat}&limit=5`);
         const data = await res.json();
-        slides = data.news;
-        const carousel = document.getElementById("carousel");
-        const dotsContainer = document.getElementById("carousel-dots");
-
-        const oldSlides = carousel.querySelectorAll('.slide');
-        oldSlides.forEach(s => s.remove());
-        dotsContainer.innerHTML = "";
-
-        slides.forEach((item, idx) => {
-            const div = document.createElement("div");
-            div.className = "slide";
-            div.innerHTML = `
-                ${item.image_url ? `<a href="/news/${item.id}"><img src="${item.image_url}" alt=""></a>` : ""}
-                <div class="caption"><a href="/news/${item.id}" style="color:#fff; text-decoration:none;">${item.title}</a></div>
-            `;
-            carousel.insertBefore(div, dotsContainer);
-        
-            const dot = document.createElement("span");
-            dot.className = "dot";
-            dot.onclick = () => { carouselIndex = idx; showSlide(carouselIndex); };
-            dotsContainer.appendChild(dot);
-        });
-        showSlide(carouselIndex);
-        setInterval(() => { nextSlide(); }, 5000);
-    }
-
-    function showSlide(n) {
-        const slideElems = document.getElementsByClassName("slide");
-        const dots = document.getElementsByClassName("dot");
-        for(let i=0;i<slideElems.length;i++){
-            slideElems[i].style.display="none";
-            dots[i].classList.remove("active");
+        const section = document.createElement("div");
+        section.className = "category-section";
+        section.innerHTML = `
+            <div class="category-header">
+                <h2>${cat}</h2>
+                <a href="/category/${cat}" class="see-more">查看更多</a>
+            </div>
+            <div class="category-news" id="news-${cat}"></div>
+        `;
+        container.appendChild(section);
+        const newsDiv = section.querySelector(`#news-${cat}`);
+        if(data.news.length === 0){
+            newsDiv.innerHTML = "<p>暂无新闻</p>";
+            continue;
         }
-        if(slideElems[n]) slideElems[n].style.display="block";
-        if(dots[n]) dots[n].classList.add("active");
-    }
-
-    function nextSlide() {
-        carouselIndex = (carouselIndex + 1) % slides.length;
-        showSlide(carouselIndex);
-    }
-
-    function prevSlide() {
-        carouselIndex = (carouselIndex - 1 + slides.length) % slides.length;
-        showSlide(carouselIndex);
-    }
-
-    async function loadCategorySections() {
-        const container = document.getElementById("categories-container");
-        container.innerHTML = "";
-        for(let cat of categories){
-            const res = await fetch(`/api/news?category=${cat}&limit=5`);
-            const data = await res.json();
-            const section = document.createElement("div");
-            section.className = "category-section";
-            section.innerHTML = `
-                <div class="category-header">
-                    <h2>${cat}</h2>
-                    <a href="/category/${cat}" class="see-more">查看更多</a>
+        data.news.forEach(item => {
+            newsDiv.innerHTML += `
+                <div class="news-item">
+                    ${item.image_url ? `<img src="${item.image_url}" alt="">` : ""}
+                    <h3><a href="/news/${item.id}">${item.title}</a></h3>
+                    <p>${item.content.substring(0, 80)}...</p>
                 </div>
-                <div class="category-news" id="news-${cat}"></div>
             `;
-            container.appendChild(section);
-            const newsDiv = section.querySelector(`#news-${cat}`);
-            if(data.news.length === 0){
-                newsDiv.innerHTML = "<p>暂无新闻</p>";
-                continue;
-            }
-            data.news.forEach(item => {
-                newsDiv.innerHTML += `
-                    <div class="news-item">
-                        ${item.image_url ? `<img src="${item.image_url}" alt="">` : ""}
-                        <h3><a href="/news/${item.id}">${item.title}</a></h3>
-                        <p>${item.content.substring(0, 80)}...</p>
-                    </div>
-                `;
-            });
-        }
+        });
     }
+}
 
-    loadCarousel();
-    loadCategorySections();
+loadCarousel();
+loadCategorySections();
 </script>
 </body>
 </html>
