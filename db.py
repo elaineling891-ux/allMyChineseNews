@@ -56,16 +56,14 @@ def news_exists(link: str) -> bool:
     conn.close()
     return exists
 
-def insert_news(title, content, link=None, image_url=None):
-    if not title or not content:
-        return
+def insert_news(title, content, link=None, image_url=None, category='all'):
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("""
-        INSERT INTO news (title, content, link, image_url)
-        VALUES (%s, %s, %s, %s)
+        INSERT INTO news (title, content, link, image_url, category)
+        VALUES (%s, %s, %s, %s, %s)
         ON DUPLICATE KEY UPDATE link=link
-    """, (title, content, link, image_url))
+    """, (title, content, link, image_url, category))
     conn.commit()
     cur.close()
     conn.close()
@@ -117,14 +115,14 @@ def get_news_by_id(news_id: int):
         "created_at": row[5],
     }
 
-def update_news(news_id, title, content, link=None, image_url=None):
+def update_news(news_id, title, content, link=None, image_url=None, category='all'):
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("""
         UPDATE news
-        SET title=%s, content=%s, link=%s, image_url=%s
+        SET title=%s, content=%s, link=%s, image_url=%s, category=%s
         WHERE id=%s
-    """, (title, content, link, image_url, news_id))
+    """, (title, content, link, image_url, category, news_id))
     conn.commit()
     cur.close()
     conn.close()
