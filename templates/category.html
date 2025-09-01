@@ -9,16 +9,38 @@
         header { background:#222; color:#fff; padding:10px 20px; display:flex; justify-content:space-between; align-items:center; }
         header h1 { margin:0; font-size:24px; }
         header a { color:#fff; text-decoration:none; font-size:14px; }
-        .news-list { 
-            display: grid; 
-            grid-template-columns: 1fr; /* 每行只显示1条 */
-            gap: 15px; 
-            margin: 20px; 
+
+        .news-list { display: flex; flex-direction: column; gap: 15px; margin: 20px; }
+        .news-item {
+            display: flex;
+            background:#fff;
+            padding:10px;
+            border-radius:6px;
+            box-shadow:0 2px 6px rgba(0,0,0,0.1);
+            gap: 15px;
         }
-        .news-item { background:#fff; padding:10px; border-radius:6px; box-shadow:0 2px 6px rgba(0,0,0,0.1); }
-        .news-item img { width:100%; height:150px; object-fit:cover; border-radius:4px; }
-        .news-item h3 { font-size:16px; margin:8px 0 4px; }
-        .news-item p { font-size:13px; color:#555; }
+        .news-item img {
+            width: 150px;
+            height: 100px;
+            object-fit: cover;
+            border-radius:4px;
+            flex-shrink: 0;
+        }
+        .news-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .news-content h3 {
+            margin:0 0 4px;
+            font-size:16px;
+        }
+        .news-content p {
+            font-size:13px;
+            color:#555;
+            margin:0;
+        }
+
         footer { text-align:center; padding:20px; background:#222; color:#fff; margin-top:40px; }
         footer a { color:#fff; text-decoration:none; margin:0 4px; }
         footer a:hover { text-decoration:underline; }
@@ -40,8 +62,10 @@
                 {% if item.image_url %}
                     <img src="{{ item.image_url }}" alt="">
                 {% endif %}
-                <h3><a href="/news/{{ item.id }}">{{ item.title }}</a></h3>
-                <p>{{ item.content[:100] }}...</p>
+                <div class="news-content">
+                    <h3><a href="/news/{{ item.id }}">{{ item.title }}</a></h3>
+                    <p>{{ item.content[:100] }}...</p>
+                </div>
             </div>
             {% endfor %}
         {% else %}
@@ -88,8 +112,10 @@
                         div.className = "news-item";
                         div.innerHTML = `
                             ${item.image_url ? `<img src="${item.image_url}" alt="">` : ""}
-                            <h3><a href="/news/${item.id}">${item.title}</a></h3>
-                            <p>${item.content.substring(0,100)}...</p>
+                            <div class="news-content">
+                                <h3><a href="/news/${item.id}">${item.title}</a></h3>
+                                <p>${item.content.substring(0,100)}...</p>
+                            </div>
                         `;
                         container.appendChild(div);
                     });
