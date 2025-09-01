@@ -106,8 +106,16 @@ async def admin_get(request: Request):
     return templates.TemplateResponse("admin.html", {"request": request})
 
 @app.post("/admin")
-def add_news(request: Request, title: str = Form(...), content: str = Form(...), link: str = Form(None), image_url: str = Form(None), category: str = Form('all')):
+def add_news(
+    request: Request,
+    title: str = Form(...),
+    content: str = Form(...),
+    link: str = Form(None),
+    image_url: str = Form(None),
+    category: str = Form('all')
+):
     insert_news(title, content, link, image_url, category)
+    return RedirectResponse("/maintenance", status_code=303)
 
 @app.get("/maintenance", response_class=HTMLResponse)
 async def maintenance(request: Request):
@@ -115,8 +123,16 @@ async def maintenance(request: Request):
     return templates.TemplateResponse("maintenance.html", {"request": request, "columns": columns, "rows": rows, "zip": zip})
 
 @app.post("/update/{news_id}")
-async def update(news_id: int, title: str = Form(...), content: str = Form(...), link: str = Form(None), image_url: str = Form(None), category: str = Form('all')):
+async def update(
+    news_id: int,
+    title: str = Form(...),
+    content: str = Form(...),
+    link: str = Form(None),
+    image_url: str = Form(None),
+    category: str = Form('all')
+):
     update_news(news_id, title, content, link, image_url, category)
+    return RedirectResponse("/maintenance", status_code=303)
 
 @app.post("/delete/{news_id}")
 async def delete(news_id: int):
