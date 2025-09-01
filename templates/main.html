@@ -1,181 +1,64 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>新闻首页</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新闻后台维护</title>
     <style>
-        body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f5f5f5; }
-        header { background:#222; color:#fff; padding:10px 20px; }
-        header h1 { margin:0; font-size:24px; }
-
-        /* 轮播样式 */
-        #carousel { position:relative; width:100%; max-height:400px; overflow:hidden; margin-top:10px; }
-        #carousel .slide { display:none; position:relative; }
-        #carousel img { width:100%; height:400px; object-fit:cover; }
-        #carousel .caption { position:absolute; bottom:10px; left:20px; color:#fff; background:rgba(0,0,0,0.5); padding:10px; border-radius:4px; }
-
-        /* 箭头 */
-        .prev, .next {
-            cursor:pointer;
-            position:absolute;
-            top:50%;
-            transform:translateY(-50%);
-            color:white;
-            font-weight:bold;
-            font-size:24px;
-            padding:10px;
-            background:rgba(0,0,0,0.3);
-            border-radius:50%;
-        }
-        .prev { left:10px; } .next { right:10px; }
-
-        /* 圆点导航 */
-        .dots { text-align:center; position:absolute; bottom:10px; width:100%; }
-        .dot { cursor:pointer; height:12px; width:12px; margin:0 4px; background:#bbb; border-radius:50%; display:inline-block; transition:background 0.3s; }
-        .dot.active { background:#717171; }
-
-        /* 分类模块 */
-        .category-section { margin:20px; }
-        .category-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
-        .category-header h2 { margin:0; font-size:20px; }
-        .category-header a { text-decoration:none; color:#007BFF; font-size:14px; }
-
-        .category-news { display:grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap:15px; }
-        .news-item { background:#fff; padding:10px; border-radius:6px; box-shadow:0 2px 6px rgba(0,0,0,0.1); }
-        .news-item img { width:100%; height:150px; object-fit:cover; border-radius:4px; }
-        .news-item h3 { font-size:16px; margin:8px 0 4px; }
-        .news-item p { font-size:13px; color:#555; }
-
-        footer { text-align:center; padding:20px; background:#222; color:#fff; margin-top:40px; }
-        footer a { color:#fff; text-decoration:none; margin:0 4px; }
-        footer a:hover { text-decoration:underline; }
+        body { font-family: Arial, sans-serif; background-color: #f5f5f5; margin: 0; padding: 20px; }
+        h1 { text-align: center; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background-color: #fff; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        th { background-color: #eee; }
+        tr:nth-child(even) { background-color: #fafafa; }
+        form { margin: 0; display: inline; }
+        input[type="text"], textarea { width: 100%; padding: 6px; margin: 2px 0; box-sizing: border-box; }
+        input[type="submit"], button { padding: 6px 12px; margin: 2px; cursor: pointer; }
+        .message { color: green; text-align: center; margin-top: 10px; }
+        .delete-btn { background-color: #f44336; color: white; border: none; }
+        .update-btn { background-color: #4CAF50; color: white; border: none; }
     </style>
 </head>
 <body>
-    <header>
-        <h1>🌐 我的新闻网站</h1>
-    </header>
+    <h1>新闻后台维护</h1>
 
-    <!-- 轮播图 -->
-    <div id="carousel">
-        <span class="prev" onclick="prevSlide()">&#10094;</span>
-        <span class="next" onclick="nextSlide()">&#10095;</span>
-        <div class="dots" id="carousel-dots"></div>
-    </div>
+    {% if message %}
+    <div class="message">{{ message }}</div>
+    {% endif %}
 
-    <!-- 分类模块 -->
-    <div id="categories-container"></div>
-
-    <!-- 底部导航 -->
-    <footer>
-      &copy; <span id="year"></span> 我的新闻聚合 | Powered by FastAPI <br>
-      <a href="/about">关于我们</a> | 
-      <a href="/contact">联系方式</a> | 
-      <a href="/privacy">隐私政策</a> |
-      <a href="/terms">服务条款</a> |
-      <a href="/disclaimer">免责声明</a>
-    </footer>
-
-    <script>
-        // ---------------- 当前年份 ----------------
-        document.getElementById('year').textContent = new Date().getFullYear();
-
-        // ---------------- 全局变量 ----------------
-        const categories = ["国家","国际","娱乐","体育"];
-        let carouselIndex = 0;
-        let slides = [];
-
-        // ---------------- 轮播 ----------------
-        async function loadCarousel() {
-            const res = await fetch(`/api/news?category=all&limit=5`);
-            const data = await res.json();
-            slides = data.news;
-            const carousel = document.getElementById("carousel");
-            const dotsContainer = document.getElementById("carousel-dots");
-
-            // 清空已有内容
-            const oldSlides = carousel.querySelectorAll('.slide');
-            oldSlides.forEach(s => s.remove());
-            dotsContainer.innerHTML = "";
-
-            slides.forEach((item, idx) => {
-                const div = document.createElement("div");
-                div.className = "slide";
-                div.innerHTML = `
-                    ${item.image_url ? `<img src="${item.image_url}" alt="">` : ""}
-                    <div class="caption"><a href="/news/${item.id}" style="color:#fff; text-decoration:none;">${item.title}</a></div>
-                `;
-                carousel.insertBefore(div, dotsContainer);
-
-                const dot = document.createElement("span");
-                dot.className = "dot";
-                dot.onclick = () => { carouselIndex = idx; showSlide(carouselIndex); };
-                dotsContainer.appendChild(dot);
-            });
-
-            showSlide(carouselIndex);
-            setInterval(() => { nextSlide(); }, 5000);
-        }
-
-        function showSlide(n) {
-            const slideElems = document.getElementsByClassName("slide");
-            const dots = document.getElementsByClassName("dot");
-            for(let i=0;i<slideElems.length;i++){
-                slideElems[i].style.display="none";
-                dots[i].classList.remove("active");
-            }
-            if(slideElems[n]) slideElems[n].style.display="block";
-            if(dots[n]) dots[n].classList.add("active");
-        }
-
-        function nextSlide() {
-            carouselIndex = (carouselIndex + 1) % slides.length;
-            showSlide(carouselIndex);
-        }
-
-        function prevSlide() {
-            carouselIndex = (carouselIndex - 1 + slides.length) % slides.length;
-            showSlide(carouselIndex);
-        }
-
-        // ---------------- 分类模块 ----------------
-        async function loadCategorySections() {
-            const container = document.getElementById("categories-container");
-            container.innerHTML = "";
-            for(let cat of categories){
-                const res = await fetch(`/api/news?category=${cat}&limit=5`);
-                const data = await res.json();
-                const section = document.createElement("div");
-                section.className = "category-section";
-                section.innerHTML = `
-                    <div class="category-header">
-                        <h2>${cat}</h2>
-                        <a href="/category/${cat}">查看更多</a>
-                    </div>
-                    <div class="category-news" id="news-${cat}"></div>
-                `;
-                container.appendChild(section);
-                const newsDiv = section.querySelector(`#news-${cat}`);
-                if(data.news.length === 0){
-                    newsDiv.innerHTML = "<p>暂无新闻</p>";
-                    continue;
-                }
-                data.news.forEach(item => {
-                    newsDiv.innerHTML += `
-                        <div class="news-item">
-                            ${item.image_url ? `<img src="${item.image_url}" alt="">` : ""}
-                            <h3><a href="/news/${item.id}">${item.title}</a></h3>
-                            <p>${item.content.substring(0, 80)}...</p>
-                        </div>
-                    `;
-                });
-            }
-        }
-
-        // ---------------- 默认加载 ----------------
-        loadCarousel();
-        loadCategorySections();
-    </script>
+    <table>
+        <thead>
+            <tr>
+                {% for col in columns %}
+                <th>{{ col }}</th>
+                {% endfor %}
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in rows %}
+            <tr>
+                {% for value in row %}
+                <td>{{ value }}</td>
+                {% endfor %}
+                <td>
+                    <!-- 更新表单 -->
+                    <form action="/update/{{ row[0] }}" method="post">
+                        <input type="text" name="title" value="{{ row[1] }}" placeholder="标题" required>
+                        <textarea name="content" placeholder="内容" required>{{ row[2] }}</textarea>
+                        <input type="text" name="link" value="{{ row[3] }}" placeholder="链接">
+                        <input type="text" name="image_url" value="{{ row[4] }}" placeholder="图片URL">
+                        <input type="text" name="category" value="{{ row[5] if 'category' in columns else 'all' }}" placeholder="分类">
+                        <input type="submit" value="更新" class="update-btn">
+                    </form>
+                    <!-- 删除表单 -->
+                    <form action="/delete/{{ row[0] }}" method="post" onsubmit="return confirm('确定要删除吗？');">
+                        <input type="submit" value="删除" class="delete-btn">
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </body>
 </html>
