@@ -1,145 +1,94 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>新闻后台管理</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
-        h2 { margin-bottom: 10px; }
-        .container { max-width: 1200px; margin: auto; }
-        .card { background: #fff; padding: 20px; margin-bottom: 20px; border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
-        input[type="text"], textarea { width: 100%; box-sizing: border-box; padding: 8px; margin-bottom: 10px; border-radius: 4px; border: 1px solid #ccc; }
-        button { padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; }
-        .btn-add { background-color: #007BFF; color: white; }
-        .btn-update { background-color: #28a745; color: white; }
-        .btn-delete { background-color: #dc3545; color: white; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 8px; vertical-align: top; }
-        th { background-color: #f4f4f4; }
-        textarea { resize: vertical; }
-        @media (max-width: 768px) {
-            table, thead, tbody, th, td, tr { display: block; }
-            th { position: absolute; top: -9999px; left: -9999px; }
-            tr { margin-bottom: 10px; border: 1px solid #ccc; padding: 10px; border-radius: 4px; }
-            td { border: none; position: relative; padding-left: 50%; }
-            td:before { 
-                position: absolute; 
-                top: 8px; left: 8px; 
-                width: 45%; 
-                white-space: nowrap; 
-                font-weight: bold; 
-            }
-            {% for col in columns %}
-            td:nth-of-type({{ loop.index }})::before { content: "{{ col }}"; }
-            {% endfor %}
-            td:last-child::before { content: "操作"; }
-        }
-    </style>
+<meta charset="UTF-8">
+<title>News Maintenance</title>
+<style>
+body { font-family: Arial; margin:20px;}
+table { width: 100%; border-collapse: collapse; margin-bottom: 20px;}
+th, td { border: 1px solid #ddd; padding: 8px; }
+th { background-color: #f4f4f4; }
+textarea, input { width: 100%; box-sizing: border-box; }
+.btn { padding:5px 10px; border:none; cursor:pointer; }
+.btn-update { background-color:#4CAF50;color:white; }
+.btn-delete { background-color:#f44336;color:white; }
+</style>
 </head>
 <body>
-<div class="container">
-    <div class="card">
-        <h2>新增新闻</h2>
-        <form id="add-news-form">
-            <input type="text" name="title" placeholder="标题" required>
-            <textarea name="content" placeholder="内容" rows="4" required></textarea>
-            <input type="text" name="link" placeholder="链接 (可选)">
-            <input type="text" name="image_url" placeholder="图片 URL (可选)">
-            <input type="text" name="category" placeholder="分类 (可选)">
-            <button type="submit" class="btn-add">新增新闻</button>
-        </form>
-        <p id="add-news-msg"></p>
-    </div>
+<h2>News Maintenance</h2>
 
-    <div class="card">
-        <h2>新闻列表维护</h2>
-        <table id="news-table">
-            <thead>
-                <tr>
-                    {% for col in columns %}
-                    <th>{{ col }}</th>
-                    {% endfor %}
-                    <th>操作</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for row in rows %}
-                <tr data-id="{{ row[0] }}">
-                    {% for col, value in zip(columns, row) %}
-                        {% if col == "id" or col == "created_at" %}
-                            <td>{{ value }}</td>
-                        {% elif col == "content" %}
-                            <td><textarea name="{{ col }}" rows="3">{{ value }}</textarea></td>
-                        {% else %}
-                            <td><input type="text" name="{{ col }}" value="{{ value }}"></td>
-                        {% endif %}
-                    {% endfor %}
-                    <td>
-                        <button class="btn-update">更新</button>
-                        <button class="btn-delete">删除</button>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        <p id="action-msg"></p>
-    </div>
-</div>
+<form id="addForm">
+    <h3>Add News</h3>
+    <input name="title" placeholder="Title" required><br><br>
+    <textarea name="content" rows="4" placeholder="Content" required></textarea><br><br>
+    <input name="link" placeholder="Link"><br><br>
+    <input name="image_url" placeholder="Image URL"><br><br>
+    <button type="submit" class="btn btn-update">Add</button>
+</form>
+
+<hr>
+<h3>News List</h3>
+<table id="newsTable">
+    <thead>
+        <tr>
+            {% for col in columns %}<th>{{ col }}</th>{% endfor %}
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in rows %}
+        <tr data-id="{{ row[0] }}">
+            {% for col, value in zip(columns, row) %}
+                {% if col == "content" %}
+                    <td><textarea name="{{ col }}">{{ value }}</textarea></td>
+                {% else %}
+                    <td><input name="{{ col }}" value="{{ value }}"></td>
+                {% endif %}
+            {% endfor %}
+            <td>
+                <button class="btn btn-update">Update</button>
+                <button class="btn btn-delete">Delete</button>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
 
 <script>
-    const addForm = document.getElementById("add-news-form");
-    const addMsg = document.getElementById("add-news-msg");
-    const newsTable = document.getElementById("news-table");
-    const actionMsg = document.getElementById("action-msg");
+const newsTable = document.getElementById("newsTable");
+const addForm = document.getElementById("addForm");
 
-    // 新增新闻
-    addForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const formData = new FormData(addForm);
-        const data = Object.fromEntries(formData.entries());
-        const resp = await fetch("/admin", {
-            method: "POST",
-            body: new URLSearchParams(data),
-        });
-        if(resp.ok){
-            addMsg.textContent = "✅ 新闻已成功提交！刷新页面查看。";
-            addForm.reset();
-        } else {
-            addMsg.textContent = "❌ 提交失败";
-        }
-    });
+// 添加新闻
+addForm.addEventListener("submit", async e => {
+    e.preventDefault();
+    const formData = new FormData(addForm);
+    const resp = await fetch("/admin", { method:"POST", body: new URLSearchParams(formData) });
+    const result = await resp.json();
+    alert(result.message);
+    location.reload(); // 简单刷新列表，也可以做局部更新
+});
 
-    // 更新/删除新闻
-    newsTable.addEventListener("click", async (e) => {
-        const tr = e.target.closest("tr");
-        const newsId = tr.getAttribute("data-id");
-        if(e.target.classList.contains("btn-update")){
-            const inputs = tr.querySelectorAll("input, textarea");
-            const data = {};
-            inputs.forEach(input => { data[input.name] = input.value; });
-            const resp = await fetch(`/update/${newsId}`, {
-                method: "POST",
-                body: new URLSearchParams(data)
-            });
-            if(resp.ok){
-                actionMsg.textContent = "✅ 更新成功";
-            } else {
-                actionMsg.textContent = "❌ 更新失败";
-            }
-        } else if(e.target.classList.contains("btn-delete")){
-            if(!confirm("确定删除吗？")) return;
-            const resp = await fetch(`/delete/${newsId}`, {
-                method: "POST"
-            });
-            if(resp.ok){
-                tr.remove();
-                actionMsg.textContent = "✅ 删除成功";
-            } else {
-                actionMsg.textContent = "❌ 删除失败";
-            }
-        }
-    });
+// 更新/删除按钮
+newsTable.addEventListener("click", async e => {
+    const tr = e.target.closest("tr");
+    if(!tr) return;
+    const news_id = tr.dataset.id;
+    if(e.target.classList.contains("btn-update")) {
+        const inputs = tr.querySelectorAll("input, textarea");
+        const data = {};
+        inputs.forEach(i=> data[i.name]=i.value);
+        const resp = await fetch(`/update/${news_id}`, { method:"POST", body:new URLSearchParams(data) });
+        const result = await resp.json();
+        alert(result.message);
+    }
+    if(e.target.classList.contains("btn-delete")) {
+        if(!confirm("Delete this news?")) return;
+        const resp = await fetch(`/delete/${news_id}`, { method:"POST" });
+        const result = await resp.json();
+        alert(result.message);
+        tr.remove();
+    }
+});
 </script>
 </body>
 </html>
