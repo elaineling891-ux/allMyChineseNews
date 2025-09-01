@@ -9,6 +9,14 @@
      crossorigin="anonymous"></script>
     <style>
         body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f5f5f5; }
+
+        /* 整个内容居中 */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 10px;
+        }
+
         header { background:#222; color:#fff; padding:10px 20px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; }
         header h1 { margin:0; font-size:20px; }
         nav { display:flex; flex-wrap:wrap; gap:10px; }
@@ -43,7 +51,7 @@
         .dot.active { background:#717171; }
 
         /* 分类模块 */
-        .category-section { margin:10px 10px 20px 10px; }
+        .category-section { margin:10px 0 20px 0; }
         .category-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
         .category-header h2 { margin:0; font-size:16px; }
         .category-header a { text-decoration:none; color:#007BFF; font-size:12px; }
@@ -80,6 +88,7 @@
     </style>
 </head>
 <body>
+  <div class="container">
     <header>
         <h1>🌐 我的新闻网站</h1>
         <nav>
@@ -122,6 +131,7 @@
       <a href="/terms">服务条款</a> |
       <a href="/disclaimer">免责声明</a>
     </footer>
+  </div>
 
     <script>
         document.getElementById('year').textContent = new Date().getFullYear();
@@ -141,7 +151,7 @@
             oldSlides.forEach(s => s.remove());
             dotsContainer.innerHTML = "";
 
-           slides.forEach((item, idx) => {
+            slides.forEach((item, idx) => {
                 const div = document.createElement("div");
                 div.className = "slide";
                 div.innerHTML = `
@@ -216,5 +226,4 @@
         loadCarousel();
         loadCategorySections();
     </script>
-</body>
 </html>
