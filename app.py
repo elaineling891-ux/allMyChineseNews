@@ -56,7 +56,7 @@ async def home(request: Request):
 
 @app.get("/category/{category}", response_class=HTMLResponse)
 async def category_page(request: Request, category: str = Path(...)):
-    news = get_all_news_by_category(category, skip=0, limit=50)
+    news = get_all_news_by_category(category, skip=0, limit=20)
     return templates.TemplateResponse("category.html", {"request": request, "news": news, "category": category, "year": datetime.now().year})
 
 @app.get("/news/{news_id}", response_class=HTMLResponse)
