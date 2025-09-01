@@ -34,6 +34,7 @@ def init_db():
         content TEXT,
         link VARCHAR(500),
         image_url TEXT,
+        category VARCHAR(100) DEFAULT 'all',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         UNIQUE KEY unique_link (link(191)),
         UNIQUE KEY unique_title (title(191))
@@ -45,7 +46,6 @@ def init_db():
     print("✅ 数据库初始化完成（created_at 默认 SGT）")
 
 def news_exists(link: str) -> bool:
-    """检查某条新闻的 link 是否已存在数据库"""
     if not link:
         return False
     conn = get_conn()
@@ -57,6 +57,8 @@ def news_exists(link: str) -> bool:
     return exists
 
 def insert_news(title, content, link=None, image_url=None, category='all'):
+    if not title or not content:
+        return
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("""
@@ -68,11 +70,31 @@ def insert_news(title, content, link=None, image_url=None, category='all'):
     cur.close()
     conn.close()
 
+def update_news(news_id, title, content, link=None, image_url=None, category='all'):
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("""
+        UPDATE news
+        SET title=%s, content=%s, link=%s, image_url=%s, category=%s
+        WHERE id=%s
+    """, (title, content, link, image_url, category, news_id))
+    conn.commit()
+    cur.close()
+    conn.close()
+
+def delete_news(news_id):
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM news WHERE id=%s", (news_id,))
+    conn.commit()
+    cur.close()
+    conn.close()
+
 def get_all_news(skip=0, limit=20):
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("""
-        SELECT id, title, content, link, image_url, created_at
+        SELECT id, title, content, link, image_url, category, created_at
         FROM news
         ORDER BY created_at DESC
         LIMIT %s OFFSET %s
@@ -88,7 +110,8 @@ def get_all_news(skip=0, limit=20):
             "content": row[2],
             "link": row[3],
             "image_url": row[4],
-            "created_at": row[5],
+            "category": row[5],
+            "created_at": row[6],
         })
     return news
 
@@ -96,7 +119,7 @@ def get_news_by_id(news_id: int):
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("""
-        SELECT id, title, content, link, image_url, created_at
+        SELECT id, title, content, link, image_url, category, created_at
         FROM news
         WHERE id=%s
         LIMIT 1
@@ -112,35 +135,23 @@ def get_news_by_id(news_id: int):
         "content": row[2],
         "link": row[3],
         "image_url": row[4],
-        "created_at": row[5],
+        "category": row[5],
+        "created_at": row[6],
     }
-
-def update_news(news_id, title, content, link=None, image_url=None, category='all'):
-    conn = get_conn()
-    cur = conn.cursor()
-    cur.execute("""
-        UPDATE news
-        SET title=%s, content=%s, link=%s, image_url=%s, category=%s
-        WHERE id=%s
-    """, (title, content, link, image_url, category, news_id))
-    conn.commit()
-    cur.close()
-    conn.close()
 
 def get_all_news_by_category(category: str, skip=0, limit=20):
     conn = get_conn()
     cur = conn.cursor()
     if category.lower() == "all":
         cur.execute("""
-            SELECT id, title, content, link, image_url, created_at
+            SELECT id, title, content, link, image_url, category, created_at
             FROM news
             ORDER BY created_at DESC
             LIMIT %s OFFSET %s
         """, (limit, skip))
     else:
-        # 如果你的表没有 category 字段，可以先创建这个字段，或者删除 WHERE category 条件
         cur.execute("""
-            SELECT id, title, content, link, image_url, created_at
+            SELECT id, title, content, link, image_url, category, created_at
             FROM news
             WHERE category=%s
             ORDER BY created_at DESC
@@ -157,18 +168,10 @@ def get_all_news_by_category(category: str, skip=0, limit=20):
             "content": row[2],
             "link": row[3],
             "image_url": row[4],
-            "created_at": row[5],
+            "category": row[5],
+            "created_at": row[6],
         })
     return news
-
-
-def delete_news(news_id):
-    conn = get_conn()
-    cur = conn.cursor()
-    cur.execute("DELETE FROM news WHERE id=%s", (news_id,))
-    conn.commit()
-    cur.close()
-    conn.close()
 
 def get_all_db():
     conn = get_conn()
