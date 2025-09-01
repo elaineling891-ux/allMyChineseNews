@@ -19,7 +19,6 @@ def get_conn():
         auth_plugin='mysql_native_password',
         charset='utf8mb4'
     )
-    # 设置时区为新加坡
     cursor = conn.cursor()
     cursor.execute("SET time_zone = '+08:00';")
     cursor.close()
@@ -45,42 +44,8 @@ def init_db():
     conn.close()
     print("✅ 数据库初始化完成（created_at 默认 SGT）")
 
-def get_all_news_by_category(category: str, skip=0, limit=20):
-    conn = get_conn()
-    cur = conn.cursor()
-    if category.lower() == "all":
-        cur.execute("""
-            SELECT id, title, content, link, image_url, created_at
-            FROM news
-            ORDER BY created_at DESC
-            LIMIT %s OFFSET %s
-        """, (limit, skip))
-    else:
-        cur.execute("""
-            SELECT id, title, content, link, image_url, created_at
-            FROM news
-            WHERE category=%s
-            ORDER BY created_at DESC
-            LIMIT %s OFFSET %s
-        """, (category, limit, skip))
-    rows = cur.fetchall()
-    cur.close()
-    conn.close()
-    news = []
-    for row in rows:
-        news.append({
-            "id": row[0],
-            "title": row[1],
-            "content": row[2],
-            "link": row[3],
-            "image_url": row[4],
-            "created_at": row[5],
-        })
-    return news
-
 def insert_news(title, content, link=None, image_url=None):
     if not title or not content:
-        print("⚠️ 跳过插入：title 或 content 为空")
         return
     conn = get_conn()
     cur = conn.cursor()
@@ -113,7 +78,7 @@ def get_all_news(skip=0, limit=20):
             "content": row[2],
             "link": row[3],
             "image_url": row[4],
-            "created_at": row[5],  # 已是 SGT
+            "created_at": row[5],
         })
     return news
 
@@ -140,17 +105,6 @@ def get_news_by_id(news_id: int):
         "created_at": row[5],
     }
 
-def news_exists(link: str) -> bool:
-    if not link:
-        return False
-    conn = get_conn()
-    cur = conn.cursor()
-    cur.execute("SELECT 1 FROM news WHERE link=%s LIMIT 1", (link,))
-    exists = cur.fetchone() is not None
-    cur.close()
-    conn.close()
-    return exists
-    
 def update_news(news_id, title, content, link=None, image_url=None):
     conn = get_conn()
     cur = conn.cursor()
@@ -172,7 +126,6 @@ def delete_news(news_id):
     conn.close()
 
 def get_all_db():
-    """返回所有字段名 + 所有行数据"""
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("DESCRIBE news")
