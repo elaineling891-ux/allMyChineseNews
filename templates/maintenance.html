@@ -1,94 +1,61 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
-<meta charset="UTF-8">
-<title>News Maintenance</title>
-<style>
-body { font-family: Arial; margin:20px;}
-table { width: 100%; border-collapse: collapse; margin-bottom: 20px;}
-th, td { border: 1px solid #ddd; padding: 8px; }
-th { background-color: #f4f4f4; }
-textarea, input { width: 100%; box-sizing: border-box; }
-.btn { padding:5px 10px; border:none; cursor:pointer; }
-.btn-update { background-color:#4CAF50;color:white; }
-.btn-delete { background-color:#f44336;color:white; }
-</style>
+    <meta charset="UTF-8">
+    <title>新闻维护</title>
+    <style>
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        th { background-color: #f4f4f4; }
+        input[type=text], textarea { width: 100%; }
+        form { margin: 0; }
+        button { padding: 4px 8px; margin-top: 2px; }
+    </style>
 </head>
 <body>
-<h2>News Maintenance</h2>
-
-<form id="addForm">
-    <h3>Add News</h3>
-    <input name="title" placeholder="Title" required><br><br>
-    <textarea name="content" rows="4" placeholder="Content" required></textarea><br><br>
-    <input name="link" placeholder="Link"><br><br>
-    <input name="image_url" placeholder="Image URL"><br><br>
-    <button type="submit" class="btn btn-update">Add</button>
-</form>
-
-<hr>
-<h3>News List</h3>
-<table id="newsTable">
-    <thead>
-        <tr>
-            {% for col in columns %}<th>{{ col }}</th>{% endfor %}
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for row in rows %}
-        <tr data-id="{{ row[0] }}">
-            {% for col, value in zip(columns, row) %}
-                {% if col == "content" %}
-                    <td><textarea name="{{ col }}">{{ value }}</textarea></td>
-                {% else %}
-                    <td><input name="{{ col }}" value="{{ value }}"></td>
-                {% endif %}
+    <h1>新闻维护</h1>
+    <table>
+        <thead>
+            <tr>
+                {% for col in columns %}
+                    <th>{{ col }}</th>
+                {% endfor %}
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in rows %}
+                <tr>
+                    <form method="post" action="/update/{{ row[0] }}">
+                        {% for i in range(columns|length) %}
+                            {% if columns[i] == 'id' or columns[i] == 'created_at' %}
+                                <td>{{ row[i] }}</td>
+                            {% elif columns[i] == 'content' %}
+                                <td><textarea name="{{ columns[i] }}">{{ row[i] }}</textarea></td>
+                            {% else %}
+                                <td><input type="text" name="{{ columns[i] }}" value="{{ row[i] }}"></td>
+                            {% endif %}
+                        {% endfor %}
+                        <td>
+                            <button type="submit">更新</button>
+                    </form>
+                    <form method="post" action="/delete/{{ row[0] }}" style="display:inline;">
+                        <button type="submit" onclick="return confirm('确定删除吗？')">删除</button>
+                    </form>
+                    </td>
+                </tr>
             {% endfor %}
-            <td>
-                <button class="btn btn-update">Update</button>
-                <button class="btn btn-delete">Delete</button>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+        </tbody>
+    </table>
 
-<script>
-const newsTable = document.getElementById("newsTable");
-const addForm = document.getElementById("addForm");
-
-// 添加新闻
-addForm.addEventListener("submit", async e => {
-    e.preventDefault();
-    const formData = new FormData(addForm);
-    const resp = await fetch("/admin", { method:"POST", body: new URLSearchParams(formData) });
-    const result = await resp.json();
-    alert(result.message);
-    location.reload(); // 简单刷新列表，也可以做局部更新
-});
-
-// 更新/删除按钮
-newsTable.addEventListener("click", async e => {
-    const tr = e.target.closest("tr");
-    if(!tr) return;
-    const news_id = tr.dataset.id;
-    if(e.target.classList.contains("btn-update")) {
-        const inputs = tr.querySelectorAll("input, textarea");
-        const data = {};
-        inputs.forEach(i=> data[i.name]=i.value);
-        const resp = await fetch(`/update/${news_id}`, { method:"POST", body:new URLSearchParams(data) });
-        const result = await resp.json();
-        alert(result.message);
-    }
-    if(e.target.classList.contains("btn-delete")) {
-        if(!confirm("Delete this news?")) return;
-        const resp = await fetch(`/delete/${news_id}`, { method:"POST" });
-        const result = await resp.json();
-        alert(result.message);
-        tr.remove();
-    }
-});
-</script>
+    <h2>新增新闻</h2>
+    <form method="post" action="/admin">
+        <label>标题:<br><input type="text" name="title" required></label><br>
+        <label>内容:<br><textarea name="content" required></textarea></label><br>
+        <label>链接:<br><input type="text" name="link"></label><br>
+        <label>图片 URL:<br><input type="text" name="image_url"></label><br>
+        <label>分类:<br><input type="text" name="category" value="all"></label><br>
+        <button type="submit">新增新闻</button>
+    </form>
 </body>
 </html>
