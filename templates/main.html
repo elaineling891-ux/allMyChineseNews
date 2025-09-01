@@ -4,16 +4,22 @@
     <meta charset="UTF-8">
     <title>新闻首页</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2460023182833054"
+     crossorigin="anonymous"></script>
     <style>
         body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f5f5f5; }
-        header { background:#222; color:#fff; padding:10px 20px; }
-        header h1 { margin:0; font-size:24px; }
+        header { background:#222; color:#fff; padding:10px 20px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; }
+        header h1 { margin:0; font-size:20px; }
+        nav { display:flex; flex-wrap:wrap; gap:10px; }
+        nav a { color:#fff; text-decoration:none; font-size:14px; padding:4px 8px; border-radius:4px; transition:background 0.2s; }
+        nav a:hover { background:rgba(255,255,255,0.2); }
 
         /* 轮播样式 */
-        #carousel { position:relative; width:100%; max-height:400px; overflow:hidden; margin-top:10px; }
+        #carousel { position:relative; width:100%; max-height:300px; overflow:hidden; margin-top:10px; }
         #carousel .slide { display:none; position:relative; }
-        #carousel img { width:100%; height:400px; object-fit:cover; }
-        #carousel .caption { position:absolute; bottom:10px; left:20px; color:#fff; background:rgba(0,0,0,0.5); padding:10px; border-radius:4px; }
+        #carousel img { width:100%; height:300px; object-fit:cover; }
+        #carousel .caption { position:absolute; bottom:10px; left:10px; right:10px; color:#fff; background:rgba(0,0,0,0.5); padding:8px; border-radius:4px; font-size:14px; }
 
         /* 箭头 */
         .prev, .next {
@@ -23,38 +29,55 @@
             transform:translateY(-50%);
             color:white;
             font-weight:bold;
-            font-size:24px;
-            padding:10px;
+            font-size:20px;
+            padding:8px;
             background:rgba(0,0,0,0.3);
             border-radius:50%;
+            z-index:10;
         }
         .prev { left:10px; } .next { right:10px; }
 
         /* 圆点导航 */
         .dots { text-align:center; position:absolute; bottom:10px; width:100%; }
-        .dot { cursor:pointer; height:12px; width:12px; margin:0 4px; background:#bbb; border-radius:50%; display:inline-block; transition:background 0.3s; }
+        .dot { cursor:pointer; height:10px; width:10px; margin:0 3px; background:#bbb; border-radius:50%; display:inline-block; transition:background 0.3s; }
         .dot.active { background:#717171; }
 
         /* 分类模块 */
-        .category-section { margin:20px; }
-        .category-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
-        .category-header h2 { margin:0; font-size:20px; }
-        .category-header a { text-decoration:none; color:#007BFF; font-size:14px; }
+        .category-section { margin:10px 10px 20px 10px; }
+        .category-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+        .category-header h2 { margin:0; font-size:16px; }
+        .category-header a { text-decoration:none; color:#007BFF; font-size:12px; }
 
-        .category-news { display:grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap:15px; }
-        .news-item { background:#fff; padding:10px; border-radius:6px; box-shadow:0 2px 6px rgba(0,0,0,0.1); }
-        .news-item img { width:100%; height:150px; object-fit:cover; border-radius:4px; }
-        .news-item h3 { font-size:16px; margin:8px 0 4px; }
-        .news-item p { font-size:13px; color:#555; }
+        .category-news { display:grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap:10px; }
+        .news-item { background:#fff; padding:6px; border-radius:4px; box-shadow:0 1px 3px rgba(0,0,0,0.1); font-size:13px; }
+        .news-item img { width:100%; height:100px; object-fit:cover; border-radius:4px; }
+        .news-item h3 { font-size:14px; margin:4px 0 2px; }
+        .news-item p { font-size:12px; color:#555; }
 
-        footer { text-align:center; padding:20px; background:#222; color:#fff; margin-top:40px; }
+        /* 广告位 */
+        .ad-container { margin:10px 0; text-align:center; }
+
+        footer { text-align:center; padding:15px; background:#222; color:#fff; margin-top:20px; font-size:12px; }
         footer a { color:#fff; text-decoration:none; margin:0 4px; }
         footer a:hover { text-decoration:underline; }
+
+        /* 手机适配 */
+        @media screen and (max-width:600px){
+            #carousel img { height:200px; }
+            .category-news { grid-template-columns:1fr; }
+        }
     </style>
 </head>
 <body>
     <header>
         <h1>🌐 我的新闻网站</h1>
+        <nav>
+            <a href="/">首页</a>
+            <a href="/category/国内">国内</a>
+            <a href="/category/国际">国际</a>
+            <a href="/category/娱乐">娱乐</a>
+            <a href="/category/体育">体育</a>
+        </nav>
     </header>
 
     <!-- 轮播图 -->
@@ -64,10 +87,22 @@
         <div class="dots" id="carousel-dots"></div>
     </div>
 
+    <!-- 首页广告 -->
+    <div class="ad-container">
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-2460023182833054"
+             data-ad-slot="1234567890"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>
+             (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+    </div>
+
     <!-- 分类模块 -->
     <div id="categories-container"></div>
 
-    <!-- 底部导航 -->
     <footer>
       &copy; <span id="year"></span> 我的新闻聚合 | Powered by FastAPI <br>
       <a href="/about">关于我们</a> | 
@@ -78,15 +113,12 @@
     </footer>
 
     <script>
-        // ---------------- 当前年份 ----------------
         document.getElementById('year').textContent = new Date().getFullYear();
 
-        // ---------------- 全局变量 ----------------
         const categories = ["国内","国际","娱乐","体育"];
         let carouselIndex = 0;
         let slides = [];
 
-        // ---------------- 轮播 ----------------
         async function loadCarousel() {
             const res = await fetch(`/api/news?category=all&limit=5`);
             const data = await res.json();
@@ -94,7 +126,6 @@
             const carousel = document.getElementById("carousel");
             const dotsContainer = document.getElementById("carousel-dots");
 
-            // 清空已有内容
             const oldSlides = carousel.querySelectorAll('.slide');
             oldSlides.forEach(s => s.remove());
             dotsContainer.innerHTML = "";
@@ -139,7 +170,6 @@
             showSlide(carouselIndex);
         }
 
-        // ---------------- 分类模块 ----------------
         async function loadCategorySections() {
             const container = document.getElementById("categories-container");
             container.innerHTML = "";
@@ -173,7 +203,6 @@
             }
         }
 
-        // ---------------- 默认加载 ----------------
         loadCarousel();
         loadCategorySections();
     </script>
