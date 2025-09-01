@@ -117,6 +117,41 @@ def update_news(news_id, title, content, link=None, image_url=None):
     cur.close()
     conn.close()
 
+def get_all_news_by_category(category: str, skip=0, limit=20):
+    conn = get_conn()
+    cur = conn.cursor()
+    if category.lower() == "all":
+        cur.execute("""
+            SELECT id, title, content, link, image_url, created_at
+            FROM news
+            ORDER BY created_at DESC
+            LIMIT %s OFFSET %s
+        """, (limit, skip))
+    else:
+        # 如果你的表没有 category 字段，可以先创建这个字段，或者删除 WHERE category 条件
+        cur.execute("""
+            SELECT id, title, content, link, image_url, created_at
+            FROM news
+            WHERE category=%s
+            ORDER BY created_at DESC
+            LIMIT %s OFFSET %s
+        """, (category, limit, skip))
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+    news = []
+    for row in rows:
+        news.append({
+            "id": row[0],
+            "title": row[1],
+            "content": row[2],
+            "link": row[3],
+            "image_url": row[4],
+            "created_at": row[5],
+        })
+    return news
+
+
 def delete_news(news_id):
     conn = get_conn()
     cur = conn.cursor()
