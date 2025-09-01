@@ -70,11 +70,12 @@
             .category-header a.see-more { margin-top:4px; font-size:13px; }
         }
 
-        /* 手机版保持原样 */
+        /* 手机版保持原样，只显示图片和标题 */
         @media screen and (max-width:600px){
             #carousel img { height:200px; }
             .category-news { grid-template-columns:1fr; gap:10px; }
             .category-header a.see-more { margin-top:10px; font-size:14px; }
+            .news-item p { display:none; } /* 不显示内容 */
         }
     </style>
 </head>
@@ -88,6 +89,7 @@
             <a href="/category/国际">国际</a>
             <a href="/category/娱乐">娱乐</a>
             <a href="/category/体育">体育</a>
+            <a href="/category/经济">经济</a>
         </nav>
     </header>
 
@@ -127,7 +129,7 @@
 <script>
     document.getElementById('year').textContent = new Date().getFullYear();
 
-    const categories = ["国内","国际","娱乐","体育"];
+    const categories = ["国内","国际","娱乐","体育","经济"];
     let carouselIndex = 0;
     let slides = [];
 
@@ -142,7 +144,7 @@
         oldSlides.forEach(s => s.remove());
         dotsContainer.innerHTML = "";
 
-       slides.forEach((item, idx) => {
+        slides.forEach((item, idx) => {
             const div = document.createElement("div");
             div.className = "slide";
             div.innerHTML = `
