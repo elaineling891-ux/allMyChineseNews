@@ -26,6 +26,7 @@
         display: block;
         text-align: center;
         margin: 15px 0;
+        min-height: 150px; /* 保证移动端有空间渲染 */
     }
   </style>
 </head>
@@ -77,16 +78,14 @@
     {% if p.strip() %}
       <p>{{ p }}</p>
     {% endif %}
-
     {% if loop.index0 == middle_index %}
-      <!-- 中间广告 -->
       <div class="ads-middle">
         <ins class="adsbygoogle"
-             style="display:block; text-align:center;"
-             data-ad-layout="in-article"
-             data-ad-format="fluid"
+             style="display:block"
              data-ad-client="ca-pub-2460023182833054"
-             data-ad-slot="6553889659"></ins>
+             data-ad-slot="6553889659"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
         <script>
           (adsbygoogle = window.adsbygoogle || []).push({});
         </script>
@@ -133,17 +132,13 @@
   function reloadMiddleAd() {
     var ad = document.querySelector(".ads-middle ins.adsbygoogle");
     if (ad && ad.innerHTML.trim() === "") {
-      console.log("广告未填充，尝试重新加载...");
       try {
         (adsbygoogle = window.adsbygoogle || []).push({});
       } catch (e) {
         console.error("AdSense 重新加载失败：", e);
       }
-    } else {
-      console.log("广告已填充或不需要重载。");
     }
   }
-
   setTimeout(reloadMiddleAd, 5000);
   window.addEventListener("scroll", function () {
     if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 100) {
