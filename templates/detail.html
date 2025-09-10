@@ -20,14 +20,8 @@
     footer { margin-top: 30px; text-align: center; padding: 20px; background-color: #f1f1f1; font-size: 0.9rem; color: #666; }
     footer a { color: #007bff; text-decoration: none; margin: 0 5px; }
     footer a:hover { text-decoration: underline; }
-
-    /* 广告样式 */
-    .ads-top, .ads-middle {
-        display: block;
-        text-align: center;
-        margin: 15px 0;
-        min-height: 150px; /* 保证移动端有空间渲染 */
-    }
+    .ads-top, .ads-middle { display: block; text-align: center; margin: 15px 0; }
+    .ads-middle { min-height: 100px; } /* 防止广告空白 */
   </style>
 </head>
 <body>
@@ -54,7 +48,7 @@
   <h2 class="mb-3">{{ news_item.title }}</h2>
   <span class="news-date">{{ news_item.created_at.strftime("%Y-%m-%d %H:%M") }}</span>
 
-  <!-- 顶部广告（标题下方） -->
+  <!-- 顶部广告 -->
   <div class="ads-top">
     <ins class="adsbygoogle"
          style="display:block; text-align:center;"
@@ -73,21 +67,25 @@
 
   <!-- 内容按段落显示，并在中间插入广告 -->
   {% set paragraphs = news_item.content.split('\n') %}
-  {% set middle_index = (paragraphs|length // 2) %}
+  {% set middle_index = paragraphs|length // 2 %}
   {% for p in paragraphs %}
     {% if p.strip() %}
       <p>{{ p }}</p>
     {% endif %}
     {% if loop.index0 == middle_index %}
+      <!-- 中间广告 -->
       <div class="ads-middle">
         <ins class="adsbygoogle"
-             style="display:block"
+             style="display:block; text-align:center;"
+             data-ad-layout="in-article"
+             data-ad-format="fluid"
              data-ad-client="ca-pub-2460023182833054"
-             data-ad-slot="6553889659"
-             data-ad-format="auto"
-             data-full-width-responsive="true"></ins>
+             data-ad-slot="6553889659"></ins>
         <script>
-          (adsbygoogle = window.adsbygoogle || []).push({});
+             setTimeout(() => {
+               try { (adsbygoogle = window.adsbygoogle || []).push({}); } 
+               catch(e){ console.error("中间广告加载失败", e); }
+             }, 500);
         </script>
       </div>
     {% endif %}
@@ -126,26 +124,5 @@
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-<!-- 中间广告检测脚本 -->
-<script>
-  function reloadMiddleAd() {
-    var ad = document.querySelector(".ads-middle ins.adsbygoogle");
-    if (ad && ad.innerHTML.trim() === "") {
-      try {
-        (adsbygoogle = window.adsbygoogle || []).push({});
-      } catch (e) {
-        console.error("AdSense 重新加载失败：", e);
-      }
-    }
-  }
-  setTimeout(reloadMiddleAd, 5000);
-  window.addEventListener("scroll", function () {
-    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 100) {
-      reloadMiddleAd();
-    }
-  });
-</script>
-
 </body>
 </html>
