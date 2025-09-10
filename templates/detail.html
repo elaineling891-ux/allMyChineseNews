@@ -20,13 +20,7 @@
     footer { margin-top: 30px; text-align: center; padding: 20px; background-color: #f1f1f1; font-size: 0.9rem; color: #666; }
     footer a { color: #007bff; text-decoration: none; margin: 0 5px; }
     footer a:hover { text-decoration: underline; }
-
-    .ads-top, .ads-middle {
-      display: block;
-      text-align: center;
-      margin: 15px 0;
-      min-height: 100px; /* 防止广告空白 */
-    }
+    .ads-top, .ads-middle { display: block; text-align: center; margin: 15px 0; }
   </style>
 </head>
 <body>
@@ -54,7 +48,7 @@
   <span class="news-date">{{ news_item.created_at.strftime("%Y-%m-%d %H:%M") }}</span>
 
   <!-- 标题下方广告 -->
-  <div class="ads-top">
+  <div class="ads-top" id="top-ad">
     <ins class="adsbygoogle"
          style="display:block; text-align:center;"
          data-ad-layout="in-article"
@@ -63,8 +57,13 @@
          data-ad-slot="3468561310"></ins>
     <script>
       setTimeout(() => {
-        try { (adsbygoogle = window.adsbygoogle || []).push({}); } 
-        catch(e){ console.error("标题下方广告加载失败", e); }
+        try { 
+          (adsbygoogle = window.adsbygoogle || []).push({}); 
+        } catch(e){ 
+          console.error("顶部广告加载失败", e);
+          const ad = document.getElementById('top-ad');
+          if(ad) ad.style.display = 'none';
+        }
       }, 500);
     </script>
   </div>
@@ -82,17 +81,22 @@
     {% endif %}
     {% if loop.index0 == middle_index %}
       <!-- 中间广告 -->
-      <div class="ads-middle">
+      <div class="ads-middle" id="middle-ad">
         <ins class="adsbygoogle"
              style="display:block; text-align:center;"
+             data-ad-layout="in-article"
+             data-ad-format="fluid"
              data-ad-client="ca-pub-2460023182833054"
-             data-ad-slot="7172836753"
-             data-ad-format="auto"
-             data-full-width-responsive="true"></ins>
+             data-ad-slot="6553889659"></ins>
         <script>
           setTimeout(() => {
-            try { (adsbygoogle = window.adsbygoogle || []).push({}); } 
-            catch(e){ console.error("中间广告加载失败", e); }
+            try { 
+              (adsbygoogle = window.adsbygoogle || []).push({}); 
+            } catch(e){ 
+              console.error("中间广告加载失败", e);
+              const ad = document.getElementById('middle-ad');
+              if(ad) ad.style.display = 'none';
+            }
           }, 500);
         </script>
       </div>
