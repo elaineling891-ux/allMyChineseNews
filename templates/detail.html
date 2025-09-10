@@ -1,148 +1,59 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<meta charset="UTF-8">
-<title>{{ news_item.title }}</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
-<!-- Adsense 脚本，只需一次 -->
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2460023182833054" crossorigin="anonymous"></script>
-
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<style>
-  body { background-color: #f9f9f9; font-family: "Microsoft YaHei", sans-serif; }
-  .navbar { background: linear-gradient(90deg, #007bff, #00c6ff); }
-  .navbar-brand, .navbar-nav .nav-link { color: white !important; }
-  .news-date { font-size: 0.85rem; color: #888; margin-left: 5px; }
-  .news-image { width: 100%; max-height: 400px; object-fit: cover; margin-bottom: 20px; border-radius: 8px; }
-  footer { margin-top: 30px; text-align: center; padding: 20px; background-color: #f1f1f1; font-size: 0.9rem; color: #666; }
-  footer a { color: #007bff; text-decoration: none; margin: 0 5px; }
-  footer a:hover { text-decoration: underline; }
-
-  .ads-top, .ads-middle {
-    display: block;
-    text-align: center;
-    margin: 15px 0;
-    background-color: #f5f5f5;
-  }
-
-  /* 顶部广告高度自适应：手机/PC */
-  .ads-top ins {
-    width: 100% !important;
-    min-height: 150px; /* 手机最小高度 */
-    max-height: 300px; /* 避免太高 */
-    display: block;
-  }
-
-  @media (min-width: 768px) {
-    .ads-top ins {
-      min-height: 250px; /* PC 高度 */
-      max-height: 400px;
-    }
-  }
-
-  .ads-middle ins { width: 100% !important; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>新闻页面</title>
+  <!-- AdSense 脚本 -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2460023182833054"
+     crossorigin="anonymous"></script>
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg">
-  <div class="container">
-    <a class="navbar-brand" href="/">我报</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav ms-auto">
-        <li class="nav-item"><a class="nav-link" href="/about">关于我们</a></li>
-        <li class="nav-item"><a class="nav-link" href="/contact">联系方式</a></li>
-        <li class="nav-item"><a class="nav-link" href="/privacy">隐私政策</a></li>
-        <li class="nav-item"><a class="nav-link" href="/terms">服务条款</a></li>
-        <li class="nav-item"><a class="nav-link" href="/disclaimer">免责声明</a></li>
-      </ul>
-    </div>
-  </div>
-</nav>
+  <h1>文章标题示例</h1>
 
-<div class="container mt-4">
-  <h2 class="mb-3">{{ news_item.title }}</h2>
-  <span class="news-date">{{ news_item.created_at.strftime("%Y-%m-%d %H:%M") }}</span>
-
-  <!-- 顶部广告 -->
+  <!-- 顶部广告（PC & 手机自适应切换） -->
   <div class="ads-top">
-    <ins class="adsbygoogle"
-         style="display:block; text-align:center;"
-         data-ad-layout="in-article"
-         data-ad-format="fluid"
-         data-ad-client="ca-pub-2460023182833054"
-         data-ad-slot="3468561310"></ins>
-  </div>
+    <!-- PC 广告 -->
+    <div class="ads-pc">
+      <ins class="adsbygoogle"
+           style="display:block; text-align:center;"
+           data-ad-layout="in-article"
+           data-ad-format="fluid"
+           data-ad-client="ca-pub-2460023182833054"
+           data-ad-slot="3468561310"></ins>
+    </div>
 
-  {% if news_item.image_url %}
-    <img src="{{ news_item.image_url }}" alt="新闻图" class="news-image">
-  {% endif %}
-
-  {% set paragraphs = news_item.content.split('\n') %}
-  {% set middle_index = paragraphs|length // 2 %}
-
-  {% for p in paragraphs %}
-    {% if p.strip() %}
-      <p>{{ p }}</p>
-    {% endif %}
-
-    {% if loop.index0 == middle_index %}
-      <!-- 中间广告 -->
-      <div class="ads-middle" id="middle-ad">
-        <ins class="adsbygoogle"
-             style="display:block; text-align:center;"
-             data-ad-layout="in-article"
-             data-ad-format="fluid"
-             data-ad-client="ca-pub-2460023182833054"
-             data-ad-slot="6553889659"></ins>
-      </div>
-    {% endif %}
-  {% endfor %}
-
-  <!-- 上一条 / 下一条 -->
-  <div class="container mt-4 mb-4">
-    <div class="row">
-      {% if prev_news %}
-      <div class="col-md-6 text-start">
-        <a href="/news/{{ prev_news.id }}" class="d-block p-3 border rounded bg-light">
-          <small class="text-muted">上一条</small><br>{{ prev_news.title }}
-        </a>
-      </div>
-      {% endif %}
-      {% if next_news %}
-      <div class="col-md-6 text-end">
-        <a href="/news/{{ next_news.id }}" class="d-block p-3 border rounded bg-light">
-          <small class="text-muted">下一条</small><br>{{ next_news.title }}
-        </a>
-      </div>
-      {% endif %}
+    <!-- 手机广告 -->
+    <div class="ads-mobile">
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-client="ca-pub-2460023182833054"
+           data-ad-slot="7172836753"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
     </div>
   </div>
-</div>
 
-<footer>
-  &copy; {{ year }} 我报 | Powered by FastAPI <br>
-  <a href="/about">关于我们</a> | 
-  <a href="/contact">联系方式</a> | 
-  <a href="/privacy">隐私政策</a> |
-  <a href="/terms">服务条款</a> | 
-  <a href="/disclaimer">免责声明</a>
-</footer>
+  <p>这里是文章内容第一段……</p>
+  <p>这里是文章内容第二段……</p>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-  // 页面加载完成后推送广告
-  window.addEventListener('load', () => {
-    try { (adsbygoogle = window.adsbygoogle || []).push({}); } catch(e) {}
-    const middleAd = document.getElementById('middle-ad');
-    if(middleAd){
-        try { (adsbygoogle = window.adsbygoogle || []).push({}); } catch(e) {}
+  <script>
+    window.addEventListener("load", () => {
+      (adsbygoogle = window.adsbygoogle || []).push({});
+    });
+  </script>
+
+  <style>
+    /* 默认显示 PC 广告，隐藏手机广告 */
+    .ads-mobile { display: none; }
+    .ads-pc { display: block; }
+
+    /* 在屏幕宽度小于 768px 时切换为手机广告 */
+    @media (max-width: 767px) {
+      .ads-mobile { display: block; }
+      .ads-pc { display: none; }
     }
-  });
-</script>
+  </style>
 </body>
 </html>
