@@ -20,6 +20,7 @@
     footer { margin-top: 30px; text-align: center; padding: 20px; background-color: #f1f1f1; font-size: 0.9rem; color: #666; }
     footer a { color: #007bff; text-decoration: none; margin: 0 5px; }
     footer a:hover { text-decoration: underline; }
+
     .ads-top, .ads-middle { display: block; text-align: center; margin: 15px 0; }
   </style>
 </head>
@@ -47,7 +48,7 @@
   <h2 class="mb-3">{{ news_item.title }}</h2>
   <span class="news-date">{{ news_item.created_at.strftime("%Y-%m-%d %H:%M") }}</span>
 
-  <!-- 标题下方广告 -->
+  <!-- 顶部广告（标题下方） -->
   <div class="ads-top" id="top-ad">
     <ins class="adsbygoogle"
          style="display:block; text-align:center;"
@@ -55,17 +56,6 @@
          data-ad-format="fluid"
          data-ad-client="ca-pub-2460023182833054"
          data-ad-slot="3468561310"></ins>
-    <script>
-      setTimeout(() => {
-        try { 
-          (adsbygoogle = window.adsbygoogle || []).push({}); 
-        } catch(e){ 
-          console.error("顶部广告加载失败", e);
-          const ad = document.getElementById('top-ad');
-          if(ad) ad.style.display = 'none';
-        }
-      }, 500);
-    </script>
   </div>
 
   {% if news_item.image_url %}
@@ -79,6 +69,7 @@
     {% if p.strip() %}
       <p>{{ p }}</p>
     {% endif %}
+
     {% if loop.index0 == middle_index %}
       <!-- 中间广告 -->
       <div class="ads-middle" id="middle-ad">
@@ -88,17 +79,6 @@
              data-ad-format="fluid"
              data-ad-client="ca-pub-2460023182833054"
              data-ad-slot="6553889659"></ins>
-        <script>
-          setTimeout(() => {
-            try { 
-              (adsbygoogle = window.adsbygoogle || []).push({}); 
-            } catch(e){ 
-              console.error("中间广告加载失败", e);
-              const ad = document.getElementById('middle-ad');
-              if(ad) ad.style.display = 'none';
-            }
-          }, 500);
-        </script>
       </div>
     {% endif %}
   {% endfor %}
@@ -136,5 +116,42 @@
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- 广告加载脚本：延迟加载 + 加载失败隐藏 -->
+<script>
+function loadAd(adId) {
+  const adContainer = document.getElementById(adId);
+  if (!adContainer) return;
+  
+  try {
+    (adsbygoogle = window.adsbygoogle || []).push({});
+    setTimeout(() => {
+      const ins = adContainer.querySelector('ins.adsbygoogle');
+      if (!ins || ins.innerHTML.trim() === "") {
+        adContainer.style.display = 'none';
+        console.log(adId + " 广告未填充，已隐藏");
+      }
+    }, 2000); // 延迟 2 秒检查
+  } catch(e) {
+    console.error(adId + " 广告加载异常", e);
+    adContainer.style.display = 'none';
+  }
+}
+
+// 延迟加载广告
+setTimeout(() => {
+  loadAd('top-ad');
+  loadAd('middle-ad');
+}, 2000);
+
+// 滚动到底部再尝试加载一次
+window.addEventListener("scroll", function () {
+  if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 100) {
+    loadAd('top-ad');
+    loadAd('middle-ad');
+  }
+});
+</script>
+
 </body>
 </html>
