@@ -22,13 +22,13 @@
   .ads-top, .ads-middle { text-align: center; margin: 15px 0; }
 
   /* 默认显示 PC 广告，隐藏手机广告 */
-  .ads-pc { display: block; }
-  .ads-mobile { display: none; }
+  .ads-pc { display: block; width:100%; }
+  .ads-mobile { display: none; width:100%; min-height:250px; }
 
-  /* 在小屏幕时切换为手机广告 */
+  /* 小屏幕显示手机广告，并自适应高度 */
   @media (max-width: 767px) {
     .ads-pc { display: none; }
-    .ads-mobile { display: block; min-height:250px; }
+    .ads-mobile { display: block; min-height: 0; } /* 高度由 AdSense 自行适应 */
   }
 </style>
 </head>
@@ -68,7 +68,7 @@
     </div>
     <div class="ads-mobile">
       <ins class="adsbygoogle"
-           style="display:block"
+           style="display:block; width:100%;"
            data-ad-client="ca-pub-2460023182833054"
            data-ad-slot="7172836753"
            data-ad-format="auto"
@@ -93,7 +93,7 @@
       <div class="ads-middle" id="middle-ad">
         <div class="ads-pc">
           <ins class="adsbygoogle"
-               style="display:block; text-align:center;"
+               style="display:block; text-align:center; width:100%;"
                data-ad-layout="in-article"
                data-ad-format="fluid"
                data-ad-client="ca-pub-2460023182833054"
@@ -101,7 +101,7 @@
         </div>
         <div class="ads-mobile">
           <ins class="adsbygoogle"
-               style="display:block"
+               style="display:block; width:100%;"
                data-ad-client="ca-pub-2460023182833054"
                data-ad-slot="5299946912"
                data-ad-format="auto"
@@ -148,7 +148,7 @@ window.addEventListener('load', () => {
 
   const middleAd = document.getElementById('middle-ad');
   if (middleAd) {
-      // 延迟 1 秒再加载中间广告，确保手机广告显示
+      // 延迟 1 秒再加载中间广告，保证手机广告显示
       setTimeout(() => {
           try { (adsbygoogle = window.adsbygoogle || []).push({}); } catch(e) {}
       }, 1000);
