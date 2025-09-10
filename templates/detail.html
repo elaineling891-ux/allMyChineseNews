@@ -21,6 +21,8 @@
     footer a { color: #007bff; text-decoration: none; margin: 0 5px; }
     footer a:hover { text-decoration: underline; }
     .ads-top, .ads-middle { display: block; text-align: center; margin: 15px 0; }
+    /* 中间广告加载失败则隐藏 */
+    .ads-middle.hidden { display: none !important; }
   </style>
 </head>
 <body>
@@ -72,18 +74,28 @@
       <p>{{ p }}</p>
     {% endif %}
     {% if loop.index0 == middle_index %}
-      <!-- 中间广告（直接显示，不延迟） -->
-      <div class="ads-middle">
+      <!-- 中间广告（尝试加载，失败则隐藏） -->
+      <div class="ads-middle" id="middle-ad">
         <ins class="adsbygoogle"
              style="display:block; text-align:center;"
              data-ad-layout="in-article"
              data-ad-format="fluid"
              data-ad-client="ca-pub-2460023182833054"
              data-ad-slot="6553889659"></ins>
-        <script>
-             try { (adsbygoogle = window.adsbygoogle || []).push({}); } catch(e) {}
-        </script>
       </div>
+      <script>
+        // 尝试推送广告
+        function loadMiddleAd() {
+          try {
+            (adsbygoogle = window.adsbygoogle || []).push({});
+          } catch(e) {
+            // 推送失败则隐藏广告容器
+            document.getElementById('middle-ad').classList.add('hidden');
+          }
+        }
+        // 延时 300ms 再尝试加载，可保证脚本已加载
+        setTimeout(loadMiddleAd, 300);
+      </script>
     {% endif %}
   {% endfor %}
 
