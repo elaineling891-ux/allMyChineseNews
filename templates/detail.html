@@ -83,6 +83,28 @@
          (adsbygoogle = window.adsbygoogle || []).push({});
     </script>
   </div>
+
+  <!-- 上一条 / 下一条 新闻推荐 -->
+  <div class="container mt-4 mb-4">
+    <div class="row">
+      {% if prev_news %}
+      <div class="col-md-6 text-start">
+        <a href="/news/{{ prev_news.id }}" class="d-block p-3 border rounded bg-light">
+          <small class="text-muted">上一条</small><br>
+          {{ prev_news.title }}
+        </a>
+      </div>
+      {% endif %}
+      {% if next_news %}
+      <div class="col-md-6 text-end">
+        <a href="/news/{{ next_news.id }}" class="d-block p-3 border rounded bg-light">
+          <small class="text-muted">下一条</small><br>
+          {{ next_news.title }}
+        </a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
 </div>
 
 <footer>
