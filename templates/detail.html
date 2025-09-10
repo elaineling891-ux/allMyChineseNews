@@ -131,7 +131,7 @@ function loadAd(adId) {
         adContainer.style.display = 'none';
         console.log(adId + " 广告未填充，已隐藏");
       }
-    }, 2000); // 延迟 2 秒检查
+    }, 6000); // 延迟 2 秒检查
   } catch(e) {
     console.error(adId + " 广告加载异常", e);
     adContainer.style.display = 'none';
@@ -142,7 +142,7 @@ function loadAd(adId) {
 setTimeout(() => {
   loadAd('top-ad');
   loadAd('middle-ad');
-}, 2000);
+}, 6000);
 
 // 滚动到底部再尝试加载一次
 window.addEventListener("scroll", function () {
