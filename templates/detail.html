@@ -20,13 +20,7 @@
     footer { margin-top: 30px; text-align: center; padding: 20px; background-color: #f1f1f1; font-size: 0.9rem; color: #666; }
     footer a { color: #007bff; text-decoration: none; margin: 0 5px; }
     footer a:hover { text-decoration: underline; }
-
-    .ads-top, .ads-middle {
-      display: block;
-      text-align: center;
-      margin: 15px 0;
-      min-height: 0; /* 初始高度0，广告未加载不占位 */
-    }
+    .ads-top, .ads-middle { display: block; text-align: center; margin: 15px 0; }
   </style>
 </head>
 <body>
@@ -53,14 +47,17 @@
   <h2 class="mb-3">{{ news_item.title }}</h2>
   <span class="news-date">{{ news_item.created_at.strftime("%Y-%m-%d %H:%M") }}</span>
 
-  <!-- 标题下方广告 -->
-  <div id="top-ad" class="ads-top">
+  <!-- 顶部广告（直接显示） -->
+  <div class="ads-top">
     <ins class="adsbygoogle"
          style="display:block; text-align:center;"
          data-ad-layout="in-article"
          data-ad-format="fluid"
          data-ad-client="ca-pub-2460023182833054"
          data-ad-slot="3468561310"></ins>
+    <script>
+         try { (adsbygoogle = window.adsbygoogle || []).push({}); } catch(e) {}
+    </script>
   </div>
 
   {% if news_item.image_url %}
@@ -75,13 +72,17 @@
       <p>{{ p }}</p>
     {% endif %}
     {% if loop.index0 == middle_index %}
-      <div id="middle-ad" class="ads-middle">
+      <!-- 中间广告（直接显示，不延迟） -->
+      <div class="ads-middle">
         <ins class="adsbygoogle"
              style="display:block; text-align:center;"
              data-ad-layout="in-article"
              data-ad-format="fluid"
              data-ad-client="ca-pub-2460023182833054"
              data-ad-slot="6553889659"></ins>
+        <script>
+             try { (adsbygoogle = window.adsbygoogle || []).push({}); } catch(e) {}
+        </script>
       </div>
     {% endif %}
   {% endfor %}
@@ -119,43 +120,5 @@
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-<script>
-function tryLoadAd(containerId, timeout = 5000) {
-  const container = document.getElementById(containerId);
-  if (!container) return;
-
-  let loaded = false;
-  const ins = container.querySelector('ins.adsbygoogle');
-
-  function attempt() {
-    try {
-      (adsbygoogle = window.adsbygoogle || []).push({});
-    } catch(e) {
-      console.error(`Ad load failed for ${containerId}`, e);
-    }
-  }
-
-  // 延迟尝试
-  setTimeout(() => {
-    if (!loaded) {
-      attempt();
-    }
-  }, 100);
-
-  // 超时隐藏
-  setTimeout(() => {
-    if (!ins || ins.innerHTML.trim() === '') {
-      container.style.display = 'none';
-      console.log(`Ad ${containerId} hidden due to timeout.`);
-    }
-  }, timeout);
-}
-
-// 标题下方广告和中间广告都尝试加载
-tryLoadAd('top-ad');
-tryLoadAd('middle-ad');
-</script>
-
 </body>
 </html>
