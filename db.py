@@ -183,3 +183,20 @@ def get_all_db():
     cur.close()
     conn.close()
     return columns, rows
+
+def get_prev_news(news_id):
+    conn = sqlite3.connect(DB_NAME)
+    c = conn.cursor()
+    c.execute("SELECT id, title FROM news WHERE id < ? ORDER BY id DESC LIMIT 1", (news_id,))
+    row = c.fetchone()
+    conn.close()
+    return {"id": row[0], "title": row[1]} if row else None
+
+def get_next_news(news_id):
+    conn = sqlite3.connect(DB_NAME)
+    c = conn.cursor()
+    c.execute("SELECT id, title FROM news WHERE id > ? ORDER BY id ASC LIMIT 1", (news_id,))
+    row = c.fetchone()
+    conn.close()
+    return {"id": row[0], "title": row[1]} if row else None
+
