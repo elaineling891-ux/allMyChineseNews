@@ -72,23 +72,23 @@
 
   <!-- 内容按段落显示，并在中间插入广告 -->
   {% set paragraphs = news_item.content.split('\n') %}
+  {% set middle_index = (paragraphs|length // 2) %}
   {% for p in paragraphs %}
     {% if p.strip() %}
       <p>{{ p }}</p>
-      {% if loop.index == (paragraphs|length // 2) %}
-        <!-- 广告放在内容中间 -->
-        <div class="ads-middle">
-          <ins class="adsbygoogle"
-               style="display:block"
-               data-ad-client="ca-pub-2460023182833054"
-               data-ad-slot="7172836753"
-               data-ad-format="auto"
-               data-full-width-responsive="true"></ins>
-          <script>
-               (adsbygoogle = window.adsbygoogle || []).push({});
-          </script>
-        </div>
-      {% endif %}
+    {% endif %}
+    {% if loop.index0 == middle_index %}
+      <div class="ads-middle">
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-2460023182833054"
+             data-ad-slot="7172836753"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>
+             (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+      </div>
     {% endif %}
   {% endfor %}
 
