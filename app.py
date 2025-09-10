@@ -67,6 +67,35 @@ async def news_detail(request: Request, news_id: int):
         return HTMLResponse(content="新闻不存在", status_code=404)
     return templates.TemplateResponse("detail.html", {"request": request, "news_item": news_item, "year": datetime.now().year})
 
+@app.get("/news/{news_id}", response_class=HTMLResponse)
+async def news_detail(request: Request, news_id: int):
+    news_item = get_news_by_id(news_id)
+    if not news_item:
+        return HTMLResponse(content="新闻不存在", status_code=404)
+
+    # 获取上一条（比当前 id 小的最大值）
+    prev_news = None
+    next_news = None
+    try:
+        prev_news = get_news_by_id(news_id - 1)
+    except:
+        pass
+    try:
+        next_news = get_news_by_id(news_id + 1)
+    except:
+        pass
+
+    return templates.TemplateResponse(
+        "detail.html",
+        {
+            "request": request,
+            "news_item": news_item,
+            "prev_news": prev_news,
+            "next_news": next_news,
+            "year": datetime.now().year,
+        },
+    )
+
 # -------------------------- API --------------------------
 @app.get("/api/news", response_class=JSONResponse)
 async def api_news(category: str = "all", skip: int = 0, limit: int = 20):
