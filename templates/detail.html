@@ -21,15 +21,14 @@
 
   .ads-top, .ads-middle { text-align: center; margin: 15px 0; }
 
-  /* 默认显示 PC 广告，隐藏手机广告 */
+  /* 顶部广告：PC / 手机分开 */
   .ads-pc { display: block; width:100%; }
   .ads-mobile { display: none; width:100%; min-height:250px; }
-
-  /* 小屏幕显示手机广告，并自适应高度 */
   @media (max-width: 767px) {
     .ads-pc { display: none; }
-    .ads-mobile { display: block; min-height: 0; } /* 高度由 AdSense 自行适应 */
+    .ads-mobile { display: block; min-height: 0; }
   }
+
 </style>
 </head>
 <body>
@@ -89,24 +88,14 @@
     {% endif %}
 
     {% if loop.index0 == middle_index %}
-      <!-- 中间广告 -->
-      <div class="ads-middle" id="middle-ad">
-        <div class="ads-pc">
-          <ins class="adsbygoogle"
-               style="display:block; text-align:center; width:100%;"
-               data-ad-layout="in-article"
-               data-ad-format="fluid"
-               data-ad-client="ca-pub-2460023182833054"
-               data-ad-slot="6553889659"></ins>
-        </div>
-        <div class="ads-mobile">
-          <ins class="adsbygoogle"
-               style="display:block; width:100%;"
-               data-ad-client="ca-pub-2460023182833054"
-               data-ad-slot="5299946912"
-               data-ad-format="auto"
-               data-full-width-responsive="true"></ins>
-        </div>
+      <!-- 中间广告（统一fluid，自适应手机/PC） -->
+      <div class="ads-middle" id="middle-ad" style="min-height:250px;">
+        <ins class="adsbygoogle"
+             style="display:block; text-align:center; width:100%; min-height:250px;"
+             data-ad-layout="in-article"
+             data-ad-format="fluid"
+             data-ad-client="ca-pub-2460023182833054"
+             data-ad-slot="6553889659"></ins>
       </div>
     {% endif %}
   {% endfor %}
@@ -144,15 +133,7 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 window.addEventListener('load', () => {
-  try { (adsbygoogle = window.adsbygoogle || []).push({}); } catch(e) {}
-
-  const middleAd = document.getElementById('middle-ad');
-  if (middleAd) {
-      // 延迟 1 秒再加载中间广告，保证手机广告显示
-      setTimeout(() => {
-          try { (adsbygoogle = window.adsbygoogle || []).push({}); } catch(e) {}
-      }, 1000);
-  }
+    try { (adsbygoogle = window.adsbygoogle || []).push({}); } catch(e) {}
 });
 </script>
 
