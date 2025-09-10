@@ -18,13 +18,29 @@
   footer { margin-top: 30px; text-align: center; padding: 20px; background-color: #f1f1f1; font-size: 0.9rem; color: #666; }
   footer a { color: #007bff; text-decoration: none; margin: 0 5px; }
   footer a:hover { text-decoration: underline; }
+
   .ads-top, .ads-middle {
     display: block;
     text-align: center;
     margin: 15px 0;
-    min-height: 250px;
     background-color: #f5f5f5;
   }
+
+  /* 顶部广告高度自适应：手机/PC */
+  .ads-top ins {
+    width: 100% !important;
+    min-height: 150px; /* 手机最小高度 */
+    max-height: 300px; /* 避免太高 */
+    display: block;
+  }
+
+  @media (min-width: 768px) {
+    .ads-top ins {
+      min-height: 250px; /* PC 高度 */
+      max-height: 400px;
+    }
+  }
+
   .ads-middle ins { width: 100% !important; }
 </style>
 </head>
@@ -55,11 +71,11 @@
   <!-- 顶部广告 -->
   <div class="ads-top">
     <ins class="adsbygoogle"
-       style="display:block; text-align:center;"
-       data-ad-format="autorelaxed"
-       data-ad-client="ca-pub-2460023182833054"
-       data-ad-slot="3468561310"></ins>
-    
+         style="display:block; text-align:center;"
+         data-ad-layout="in-article"
+         data-ad-format="fluid"
+         data-ad-client="ca-pub-2460023182833054"
+         data-ad-slot="3468561310"></ins>
   </div>
 
   {% if news_item.image_url %}
@@ -125,8 +141,6 @@
     const middleAd = document.getElementById('middle-ad');
     if(middleAd){
         try { (adsbygoogle = window.adsbygoogle || []).push({}); } catch(e) {}
-        // 再延时一次增加显示概率
-        setTimeout(() => { try { (adsbygoogle = window.adsbygoogle || []).push({}); } catch(e) {} }, 2000);
     }
   });
 </script>
