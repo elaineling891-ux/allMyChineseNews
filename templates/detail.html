@@ -23,6 +23,8 @@
     .ads-top, .ads-middle { display: block; text-align: center; margin: 15px 0; }
     /* 中间广告加载失败则隐藏 */
     .ads-middle.hidden { display: none !important; }
+    /* 给广告容器最小高度，避免完全空白 */
+    .ads-middle { min-height: 120px; }
   </style>
 </head>
 <body>
@@ -74,8 +76,8 @@
       <p>{{ p }}</p>
     {% endif %}
     {% if loop.index0 == middle_index %}
-      <!-- 中间广告（尝试加载，失败则隐藏） -->
-      <div class="ads-middle" id="middle-ad">
+      <!-- 中间广告（滚动可视后加载） -->
+      <div class="ads-middle hidden" id="middle-ad">
         <ins class="adsbygoogle"
              style="display:block; text-align:center;"
              data-ad-layout="in-article"
@@ -83,19 +85,6 @@
              data-ad-client="ca-pub-2460023182833054"
              data-ad-slot="6553889659"></ins>
       </div>
-      <script>
-        // 尝试推送广告
-        function loadMiddleAd() {
-          try {
-            (adsbygoogle = window.adsbygoogle || []).push({});
-          } catch(e) {
-            // 推送失败则隐藏广告容器
-            document.getElementById('middle-ad').classList.add('hidden');
-          }
-        }
-        // 延时 300ms 再尝试加载，可保证脚本已加载
-        setTimeout(loadMiddleAd, 300);
-      </script>
     {% endif %}
   {% endfor %}
 
@@ -132,5 +121,21 @@
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // IntersectionObserver 加载中间广告
+  const middleAd = document.getElementById('middle-ad');
+  if (middleAd) {
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          middleAd.classList.remove('hidden');
+          try { (adsbygoogle = window.adsbygoogle || []).push({}); } catch(e) { middleAd.classList.add('hidden'); }
+          observer.unobserve(middleAd);
+        }
+      });
+    }, { threshold: 0.5 });
+    observer.observe(middleAd);
+  }
+</script>
 </body>
 </html>
