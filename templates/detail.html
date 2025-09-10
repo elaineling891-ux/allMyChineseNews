@@ -51,28 +51,13 @@
   <h2 class="mb-3">{{ news_item.title }}</h2>
   <span class="news-date">{{ news_item.created_at.strftime("%Y-%m-%d %H:%M") }}</span>
 
-  <!-- 顶部广告：手机固定尺寸 + 桌面自适应 -->
-  <!-- 手机端 (320x100) -->
-  <div class="ads-top d-block d-md-none">
-    <ins class="adsbygoogle"
-         style="display:inline-block;width:320px;height:100px"
-         data-ad-client="ca-pub-2460023182833054"
-         data-ad-slot="3468561310"></ins>
-    <script>
-         (adsbygoogle = window.adsbygoogle || []).push({});
-    </script>
-  </div>
-
-  <!-- 桌面端 (自适应) -->
-  <div class="ads-top d-none d-md-block">
+  <!-- 顶部广告 -->
+  <div class="ads-top">
     <ins class="adsbygoogle"
          data-ad-client="ca-pub-2460023182833054"
          data-ad-slot="3468561310"
          data-ad-format="auto"
          data-full-width-responsive="true"></ins>
-    <script>
-         (adsbygoogle = window.adsbygoogle || []).push({});
-    </script>
   </div>
 
   {% if news_item.image_url %}
