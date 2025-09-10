@@ -70,24 +70,25 @@
     <img src="{{ news_item.image_url }}" alt="新闻图" class="news-image">
   {% endif %}
 
-  <!-- 内容按段落显示，并在中间插入广告 -->
-  {% set paragraphs = news_item.content.split('\n') %}
-  {% set middle_index = (paragraphs|length // 2) %}
+  <!-- 内容按段落显示 -->
+  {% set paragraphs = news_item.content.split('\n')|select('trim')|list %}
+  {% set middle_index = paragraphs|length // 2 %}
+
   {% for p in paragraphs %}
-    {% if p.strip() %}
-      <p>{{ p }}</p>
-    {% endif %}
+    <p>{{ p }}</p>
+
     {% if loop.index0 == middle_index %}
+      <!-- 中间广告 -->
       <div class="ads-middle">
-       <ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-2460023182833054"
-     data-ad-slot="6553889659"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
+        <ins class="adsbygoogle"
+             style="display:block; text-align:center;"
+             data-ad-layout="in-article"
+             data-ad-format="fluid"
+             data-ad-client="ca-pub-2460023182833054"
+             data-ad-slot="6553889659"></ins>
+        <script>
+             (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
       </div>
     {% endif %}
   {% endfor %}
@@ -126,28 +127,12 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- 中间广告检测脚本 -->
+<!-- 强制刷新中间广告 -->
 <script>
-  function reloadMiddleAd() {
+  window.onload = function() {
     var ad = document.querySelector(".ads-middle ins.adsbygoogle");
-    if (ad && ad.innerHTML.trim() === "") {
-      console.log("广告未填充，尝试重新加载...");
-      try {
-        (adsbygoogle = window.adsbygoogle || []).push({});
-      } catch (e) {
-        console.error("AdSense 重新加载失败：", e);
-      }
-    } else {
-      console.log("广告已填充或不需要重载。");
-    }
-  }
-
-  setTimeout(reloadMiddleAd, 5000);
-  window.addEventListener("scroll", function () {
-    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 100) {
-      reloadMiddleAd();
-    }
-  });
+    if(ad) (adsbygoogle = window.adsbygoogle || []).push({});
+  };
 </script>
 
 </body>
