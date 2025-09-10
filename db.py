@@ -173,22 +173,33 @@ def get_all_news_by_category(category: str, skip=0, limit=20):
         })
     return news
 
-def get_all_db():
+def get_prev_news(news_id: int):
     conn = get_conn()
     cur = conn.cursor()
-    cur.execute("DESCRIBE news")
-    columns = [col[0] for col in cur.fetchall()]
-    cur.execute("SELECT * FROM news ORDER BY created_at DESC")
-    rows = cur.fetchall()
+    cur.execute("""
+        SELECT id, title 
+        FROM news 
+        WHERE id < %s 
+        ORDER BY id DESC 
+        LIMIT 1
+    """, (news_id,))
+    row = cur.fetchone()
     cur.close()
     conn.close()
-    return columns, rows
+    return {"id": row[0], "title": row[1]} if row else None
 
-def get_prev_news(news_id):
-    conn = sqlite3.connect(DB_NAME)
-    c = conn.cursor()
-    c.execute("SELECT id, title FROM news WHERE id < ? ORDER BY id DESC LIMIT 1", (news_id,))
-    row = c.fetchone()
+def get_next_news(news_id: int):
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT id, title 
+        FROM news 
+        WHERE id > %s 
+        ORDER BY id ASC 
+        LIMIT 1
+    """, (news_id,))
+    row = cur.fetchone()
+    cur.close()
     conn.close()
     return {"id": row[0], "title": row[1]} if row else None
 
