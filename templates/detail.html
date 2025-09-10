@@ -28,16 +28,14 @@
 
   /* 顶部广告高度自适应：手机/PC */
   .ads-top ins {
-    width: 100% !important;
-    min-height: 150px; /* 手机最小高度 */
-    max-height: 300px; /* 避免太高 */
     display: block;
+    width: 100% !important;
+    height: 200px; /* 手机默认高度 */
   }
 
   @media (min-width: 768px) {
     .ads-top ins {
-      min-height: 250px; /* PC 高度 */
-      max-height: 400px;
+      height: 300px; /* PC 高度 */
     }
   }
 
@@ -71,7 +69,6 @@
   <!-- 顶部广告 -->
   <div class="ads-top">
     <ins class="adsbygoogle"
-         style="display:block; text-align:center;"
          data-ad-layout="in-article"
          data-ad-format="fluid"
          data-ad-client="ca-pub-2460023182833054"
@@ -94,7 +91,6 @@
       <!-- 中间广告 -->
       <div class="ads-middle" id="middle-ad">
         <ins class="adsbygoogle"
-             style="display:block; text-align:center;"
              data-ad-layout="in-article"
              data-ad-format="fluid"
              data-ad-client="ca-pub-2460023182833054"
