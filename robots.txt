@@ -1,4 +1,0 @@
-User-agent: *
-Disallow:
-
-Sitemap: https://globalnews-5ose.onrender.com/sitemap.xml
