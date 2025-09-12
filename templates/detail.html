@@ -5,46 +5,54 @@
 <title>{{ news_item.title }}</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<!-- Adsense 脚本，只需一次 -->
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2460023182833054" crossorigin="anonymous"></script>
-
+<!-- Bootstrap -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Font Awesome 图标 -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
 <style>
   body { background-color: #f9f9f9; font-family: "Microsoft YaHei", sans-serif; position: relative; }
   .navbar { background: linear-gradient(90deg, #007bff, #00c6ff); }
   .navbar-brand, .navbar-nav .nav-link { color: white !important; }
+
   .news-date { font-size: 0.85rem; color: #888; }
 
   .news-image { width: 100%; max-height: 400px; object-fit: cover; margin-bottom: 20px; border-radius: 8px; }
 
-  /* 分享按钮悬浮样式 */
+  /* 悬浮分享按钮 */
   .share-floating {
     position: fixed;
-    top: 150px; /* 可以根据标题位置调整 */
+    top: 150px;
     right: 20px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
     z-index: 1000;
   }
-  .share-floating a img {
-    width: 36px;
-    height: 36px;
+  .share-floating a {
+    color: white;
+    font-size: 1.5rem;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
     transition: transform 0.2s;
   }
-  .share-floating a img:hover {
-    transform: scale(1.2);
-  }
+  .share-floating a:hover { transform: scale(1.2); }
+
+  .share-facebook { background-color: #3b5998; }
+  .share-whatsapp { background-color: #25d366; }
+  .share-twitter { background-color: #1da1f2; }
+  .share-linkedin { background-color: #0077b5; }
 
   footer { margin-top: 30px; text-align: center; padding: 20px; background-color: #f1f1f1; font-size: 0.9rem; color: #666; }
   footer a { color: #007bff; text-decoration: none; margin: 0 5px; }
   footer a:hover { text-decoration: underline; }
 
-  .ads-top, .ads-middle {
-    text-align: center;
-    margin: 15px 0;
-  }
-
+  .ads-top, .ads-middle { text-align: center; margin: 15px 0; }
   ins.adsbygoogle { display:block; }
 </style>
 </head>
@@ -76,19 +84,6 @@
     <span class="news-date">{{ news_item.created_at.strftime("%Y-%m-%d %H:%M") }}</span>
   </div>
 
-  <!-- 悬浮分享按钮 -->
-  <div class="share-floating">
-    <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.url }}" target="_blank">
-      <img src="/static/facebook.png" alt="Facebook">
-    </a>
-    <a href="https://api.whatsapp.com/send?text={{ request.url }}" target="_blank">
-      <img src="/static/whatsapp.png" alt="WhatsApp">
-    </a>
-    <a href="https://twitter.com/intent/tweet?text={{ news_item.title | urlencode }}&url={{ request.url }}" target="_blank">
-      <img src="/static/twitter.png" alt="Twitter">
-    </a>
-  </div>
-
   <!-- 顶部广告 -->
   <div class="ads-top">
     <ins class="adsbygoogle"
@@ -111,7 +106,6 @@
     {% endif %}
 
     {% if loop.index0 == middle_index %}
-      <!-- 中间广告 -->
       <div class="ads-middle" id="middle-ad">
         <ins class="adsbygoogle"
              data-ad-client="ca-pub-2460023182833054"
@@ -141,6 +135,22 @@
       {% endif %}
     </div>
   </div>
+</div>
+
+<!-- 悬浮分享图标 -->
+<div class="share-floating">
+  <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.url }}" target="_blank" class="share-facebook">
+    <i class="fab fa-facebook-f"></i>
+  </a>
+  <a href="https://api.whatsapp.com/send?text={{ request.url }}" target="_blank" class="share-whatsapp">
+    <i class="fab fa-whatsapp"></i>
+  </a>
+  <a href="https://twitter.com/intent/tweet?text={{ news_item.title | urlencode }}&url={{ request.url }}" target="_blank" class="share-twitter">
+    <i class="fab fa-twitter"></i>
+  </a>
+  <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ request.url }}" target="_blank" class="share-linkedin">
+    <i class="fab fa-linkedin-in"></i>
+  </a>
 </div>
 
 <footer>
