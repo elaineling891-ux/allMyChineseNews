@@ -52,9 +52,16 @@
     <form method="post" action="/admin">
         <label>标题:<br><input type="text" name="title" required></label><br>
         <label>内容:<br><textarea name="content" required></textarea></label><br>
-        <label>链接:<br><input type="text" name="link"></label><br>
         <label>图片 URL:<br><input type="text" name="image_url"></label><br>
-        <label>分类:<br><input type="text" name="category" value="all"></label><br>
+        <label>分类:<br>
+            <select name="category" required>
+                <option value="国内">国内</option>
+                <option value="国际">国际</option>
+                <option value="财经">财经</option>
+                <option value="体育">体育</option>
+                <option value="娱乐">娱乐</option>
+            </select>
+        </label><br>
         <button type="submit">新增新闻</button>
     </form>
 </body>
