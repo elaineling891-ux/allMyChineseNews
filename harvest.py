@@ -1,15 +1,16 @@
 import requests
 from bs4 import BeautifulSoup
-from db import insert_news, news_exists
+from db import insert_news
 import time
 from urllib.parse import urljoin
 from deep_translator import GoogleTranslator
 import re
 
 # --------------------------
-# 初始化 Cohere 改写 API
+# OpenAI 改写 API
 # --------------------------
 OPENAI_API_KEY = "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"
+MAX_TOKENS_PER_REQUEST = 800
 COHERE_URL = "https://api.cohere.ai/v1/chat"
 
 def rewrite_text_chatgpt(text: str):
@@ -55,7 +56,6 @@ def rewrite_text_chatgpt(text: str):
 # 后处理：添加换行，每3句换一次行
 # --------------------------
 def add_linebreaks(text, n_sentences=3):
-    import re
     sentences = re.split(r'(?<=[。！？.!?])', text)
     lines = []
     for i in range(0, len(sentences), n_sentences):
@@ -73,10 +73,7 @@ def translate_to_simplified(text: str) -> str:
         return text
 
 def rewrite_text(text):
-    ok, rewritten = rewrite_text_chatgpt(text)
-    if not ok:  # ❌ Cohere 失败
-        return None
-
+    rewritten = rewrite_text_chatgpt(text)
     rewritten = add_linebreaks(rewritten)
     rewritten = translate_to_simplified(rewritten)
     time.sleep(61)  # ✅ 每次调用后强制等待 61 秒
@@ -84,7 +81,7 @@ def rewrite_text(text):
 
 
 # --------------------------
-# 以下抓取文章内容、图片、网站新闻等保持不变
+# 抓取文章内容
 # --------------------------
 def fetch_article_content(link):
     if not link:
@@ -94,11 +91,11 @@ def fetch_article_content(link):
         soup = BeautifulSoup(resp.text, "html.parser")
 
         if "udn.com" in link:
-           div = (
+            div = (
                 soup.select_one("section.article-content__editor")
                 or soup.select_one("div.article-content__editor")
                 or soup.select_one("div#article_body")
-                or soup.select_one("div#story_body_content")  # 兜底旧版
+                or soup.select_one("div#story_body_content")
             )
         elif "ltn.com" in link:
             div = (
@@ -119,6 +116,10 @@ def fetch_article_content(link):
         print(f"抓文章内容失败 ({link}): {e}")
     return ""
 
+
+# --------------------------
+# 抓取文章图片
+# --------------------------
 def fetch_article_image(link):
     if not link:
         return None
@@ -128,12 +129,9 @@ def fetch_article_image(link):
         img_url = None
 
         if "udn.com" in link:
-             # ✅ 先抓 og:image / twitter:image
             meta = soup.select_one('meta[property="og:image"]') or soup.select_one('meta[name="twitter:image"]')
             if meta:
                 img_url = meta.get("content")
-
-            # 如果 meta 没有，再退回正文
             if not img_url:
                 div = (
                     soup.select_one("div#story_body_content")
@@ -143,7 +141,6 @@ def fetch_article_image(link):
                     img = div.find("img")
                     if img:
                         img_url = img.get("data-src") or img.get("src")
-           
         elif "ltn.com" in link:
             div = soup.select_one("div.text")
             if div:
@@ -163,6 +160,10 @@ def fetch_article_image(link):
         print(f"抓文章图片失败 ({link}): {e}")
     return None
 
+
+# --------------------------
+# 抓取站点新闻列表
+# --------------------------
 def fetch_site_news(url, limit=20):
     news_items = []
     try:
@@ -172,7 +173,6 @@ def fetch_site_news(url, limit=20):
         if "udn.com" in url:
             items = soup.select("div.story-list__text a")
         elif "ltn.com" in url:
-            # LTN 首页和 breakingnews 页用这个 selector 就能抓到新闻链接
             items = soup.select("ul.list a")
         elif "yahoo.com" in url:
             items = soup.select("a[href*='/news/']")
@@ -185,12 +185,11 @@ def fetch_site_news(url, limit=20):
             if link and link.startswith("/"):
                 link = urljoin(url, link)
 
-            # ✅ 针对 Yahoo：进入详情页抓真正标题
-            if "yahoo.com" in url and link and link.startswith("http"):
+            # 进入详情页抓真正标题
+            if link and link.startswith("http"):
                 try:
                     article_res = requests.get(link, timeout=10)
                     article_soup = BeautifulSoup(article_res.text, "html.parser")
-
                     h1 = article_soup.select_one("h1")
                     if h1:
                         title = h1.get_text(strip=True)
@@ -200,28 +199,8 @@ def fetch_site_news(url, limit=20):
                             title = og_title["content"].strip()
                         elif article_soup.title:
                             title = article_soup.title.string.strip()
-
                 except Exception as e:
-                    print(f"Yahoo 抓文章标题失败: {e}")
-
-            # ✅ 针对 UDN：进入详情页抓真正标题
-            elif "udn.com" in url and link and link.startswith("http"):
-                try:
-                    article_res = requests.get(link, timeout=10)
-                    article_soup = BeautifulSoup(article_res.text, "html.parser")
-
-                    h1 = article_soup.select_one("h1")
-                    if h1:
-                        title = h1.get_text(strip=True)
-                    else:
-                        og_title = article_soup.select_one("meta[property='og:title']")
-                        if og_title and og_title.get("content"):
-                            title = og_title["content"].strip()
-                        elif article_soup.title:
-                            title = article_soup.title.string.strip()
-
-                except Exception as e:
-                    print(f"UDN 抓文章标题失败: {e}")
+                    print(f"抓文章标题失败: {e}")
 
             news_items.append((title, link))
 
@@ -229,6 +208,10 @@ def fetch_site_news(url, limit=20):
         print(f"抓 {url} 出错: {e}")
     return news_items
 
+
+# --------------------------
+# 主入口：抓新闻 + 改写 + 入库
+# --------------------------
 def fetch_news():
     all_news = []
     sites = [
@@ -246,12 +229,6 @@ def fetch_news():
             continue
 
         for title, link in site_news:
-            if not link:
-                print(f"❌ 跳过：标题 [{title}] 没有链接")
-                continue
-            if news_exists(link):
-                print(f"⏩ 已存在: {link}")
-                continue
             if not title or title.strip() == "":
                 print(f"❌ 跳过：空标题 (link={link})")
                 continue
@@ -283,16 +260,15 @@ def fetch_news():
                 content_rw = dedup_sentences(content_rw)
 
                 # ---------- 入库 ----------
-                insert_news(title_rw, content_rw, link, image_url)
+                insert_news(title_rw, content_rw, image_url)
 
                 all_news.append({
                     "title": title_rw,
                     "content": content_rw,
-                    "link": link,
                     "image_url": image_url
                 })
 
-                print(f"✅ 成功: {title_rw[:30]}... (link={link})")
+                print(f"✅ 成功: {title_rw[:30]}...")
 
             except Exception as e:
                 print(f"❌ 插入失败: {title[:30]}... 错误: {e}")
@@ -300,13 +276,14 @@ def fetch_news():
     print(f"\n📊 本次共成功保存 {len(all_news)} 条新闻")
     return all_news
 
+
+# --------------------------
+# 文本清理函数
+# --------------------------
 def remove_comma_after_punct(title: str) -> str:
-    # 替换句号、感叹号、问号后面紧跟的中英文逗号
-    title = re.sub(r'([。！？])[,，]+', r'\1', title)
-    return title
+    return re.sub(r'([。！？])[,，]+', r'\1', title)
 
 def dedup_sentences(text: str) -> str:
-    # 分句，保留标点
     parts = re.split(r'([。！？])', text)
     sentences = []
     for i in range(0, len(parts)-1, 2):
@@ -321,15 +298,11 @@ def dedup_sentences(text: str) -> str:
             result.append(s)
         else:
             prev = result[-1]
-            # 1. 完全相同，跳过
             if prev == s:
                 continue
-            # 2. 如果当前句是前一句的尾部重复，也跳过
             elif prev.endswith(s):
                 continue
             else:
                 result.append(s)
 
     return "".join(result)
-
-
