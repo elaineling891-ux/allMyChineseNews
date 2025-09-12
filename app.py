@@ -1,7 +1,7 @@
 import asyncio
 import os
 from fastapi import FastAPI, Request, Form, Path
-from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse, RedirectResponse, FileResponse
 from fastapi.templating import Jinja2Templates
 from db import get_all_news, init_db, get_news_by_id, insert_news, update_news, delete_news, get_all_db, get_all_news_by_category, get_news_by_id, get_prev_news, get_next_news
 from harvest import fetch_news
@@ -150,6 +150,13 @@ async def update(
 async def delete(news_id: int):
     delete_news(news_id)
     return RedirectResponse("/maintenance", status_code=303)
+
+@app.get("/sitemap.xml", response_class=FileResponse)
+async def sitemap():
+    path = os.path.join(os.path.dirname(__file__), "sitemap.xml")
+    if os.path.exists(path):
+        return FileResponse(path, media_type="application/xml")
+    return PlainTextResponse("sitemap.xml not found", status_code=404)
 
 # -------------------------- 启动 Uvicorn --------------------------
 if __name__ == "__main__":
