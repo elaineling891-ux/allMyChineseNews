@@ -152,41 +152,6 @@ async def delete(news_id: int):
     delete_news(news_id)
     return RedirectResponse("/maintenance", status_code=303)
 
-@app.get("/sitemap.xml", response_class=FileResponse)
-async def sitemap():
-    path = os.path.join(os.path.dirname(__file__), "sitemap.xml")
-    if os.path.exists(path):
-        return FileResponse(path, media_type="application/xml")
-    return PlainTextResponse("sitemap.xml not found", status_code=404)
-
-def generate_sitemap():
-    news_list = get_all_news(limit=1000)
-    lines = ['<?xml version="1.0" encoding="UTF-8"?>']
-    lines.append('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">')
-
-    # 首页
-    lines.append("  <url>")
-    lines.append("    <loc>https://globalnews-5ose.onrender.com/</loc>")
-    lines.append(f"    <lastmod>{datetime.now().date()}</lastmod>")
-    lines.append("    <changefreq>daily</changefreq>")
-    lines.append("    <priority>1.0</priority>")
-    lines.append("  </url>")
-
-    # 新闻页
-    for news in news_list:
-        lines.append("  <url>")
-        lines.append(f"    <loc>https://globalnews-5ose.onrender.com/news/{news['id']}</loc>")
-        lines.append(f"    <lastmod>{news['created_at'].date()}</lastmod>")
-        lines.append("    <changefreq>daily</changefreq>")
-        lines.append("    <priority>0.8</priority>")
-        lines.append("  </url>")
-
-    lines.append('</urlset>')
-
-    with open("sitemap.xml", "w", encoding="utf-8") as f:
-        f.write("\n".join(lines))
-    print("✅ sitemap.xml 已更新")
-
 # -------------------------- 启动 Uvicorn --------------------------
 if __name__ == "__main__":
     import uvicorn
