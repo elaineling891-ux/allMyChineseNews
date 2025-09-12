@@ -13,8 +13,9 @@
   body { background-color: #f9f9f9; font-family: "Microsoft YaHei", sans-serif; }
   .navbar { background: linear-gradient(90deg, #007bff, #00c6ff); }
   .navbar-brand, .navbar-nav .nav-link { color: white !important; }
-  .news-date { font-size: 0.85rem; color: #888; margin-left: 5px; }
+  .news-date { font-size: 0.85rem; color: #888; margin-right: 10px; }
   .news-image { width: 100%; max-height: 400px; object-fit: cover; margin-bottom: 20px; border-radius: 8px; }
+  .share-buttons a { margin-right: 5px; display: inline-block; }
   footer { margin-top: 30px; text-align: center; padding: 20px; background-color: #f1f1f1; font-size: 0.9rem; color: #666; }
   footer a { color: #007bff; text-decoration: none; margin: 0 5px; }
   footer a:hover { text-decoration: underline; }
@@ -49,7 +50,23 @@
 
 <div class="container mt-4">
   <h2 class="mb-3">{{ news_item.title }}</h2>
-  <span class="news-date">{{ news_item.created_at.strftime("%Y-%m-%d %H:%M") }}</span>
+  <div class="d-flex align-items-center mb-3">
+    <span class="news-date">{{ news_item.created_at.strftime("%Y-%m-%d %H:%M") }}</span>
+    <div class="share-buttons">
+      <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.url }}" target="_blank">
+        <img src="/static/icons/facebook.png" alt="Facebook" style="width:24px;height:24px;">
+      </a>
+      <a href="https://api.whatsapp.com/send?text={{ request.url }}" target="_blank">
+        <img src="/static/icons/whatsapp.png" alt="WhatsApp" style="width:24px;height:24px;">
+      </a>
+      <a href="https://twitter.com/intent/tweet?text={{ news_item.title | urlencode }}&url={{ request.url }}" target="_blank">
+        <img src="/static/icons/twitter.png" alt="Twitter" style="width:24px;height:24px;">
+      </a>
+      <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ request.url }}" target="_blank">
+        <img src="/static/icons/linkedin.png" alt="LinkedIn" style="width:24px;height:24px;">
+      </a>
+    </div>
+  </div>
 
   <!-- 顶部广告 -->
   <div class="ads-top">
