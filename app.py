@@ -124,11 +124,10 @@ def add_news(
     request: Request,
     title: str = Form(...),
     content: str = Form(...),
-    link: str = Form(None),
     image_url: str = Form(None),
     category: str = Form('all')
 ):
-    insert_news(title, content, link, image_url, category)
+    insert_news(title, content, image_url, category)
     return RedirectResponse("/maintenance", status_code=303)
 
 @app.get("/maintenance", response_class=HTMLResponse)
@@ -141,11 +140,10 @@ async def update(
     news_id: int,
     title: str = Form(...),
     content: str = Form(...),
-    link: str = Form(None),
     image_url: str = Form(None),
     category: str = Form('all')
 ):
-    update_news(news_id, title, content, link, image_url, category)
+    update_news(news_id, title, content, image_url, category)
     return RedirectResponse("/maintenance", status_code=303)
 
 @app.post("/delete/{news_id}")
