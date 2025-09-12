@@ -47,6 +47,19 @@
   .share-whatsapp { background-color: #25d366; }
   .share-twitter { background-color: #1da1f2; }
   .share-linkedin { background-color: #0077b5; }
+  .share-telegram { background-color: #0088cc; }
+
+  /* 手机端：水平排列，右下角固定 */
+  @media (max-width: 768px) {
+    .share-floating {
+      top: auto;
+      bottom: 20px;
+      right: 20px;
+      flex-direction: row;
+      gap: 10px;
+    }
+    .share-floating a { width: 40px; height: 40px; font-size: 1.2rem; }
+  }
 
   footer { margin-top: 30px; text-align: center; padding: 20px; background-color: #f1f1f1; font-size: 0.9rem; color: #666; }
   footer a { color: #007bff; text-decoration: none; margin: 0 5px; }
@@ -150,6 +163,9 @@
   </a>
   <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ request.url }}" target="_blank" class="share-linkedin">
     <i class="fab fa-linkedin-in"></i>
+  </a>
+  <a href="https://t.me/share/url?url={{ request.url }}&text={{ news_item.title | urlencode }}" target="_blank" class="share-telegram">
+    <i class="fab fa-telegram-plane"></i>
   </a>
 </div>
 
