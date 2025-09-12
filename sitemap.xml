@@ -1,0 +1,28 @@
+from db import get_all_news
+from datetime import datetime
+
+news_list = get_all_news(limit=1000)  # 获取最新 1000 篇新闻
+lines = ['<?xml version="1.0" encoding="UTF-8"?>']
+lines.append('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">')
+
+# 首页
+lines.append("  <url>")
+lines.append("    <loc>https://globalnews-5ose.onrender.com/</loc>")
+lines.append(f"    <lastmod>{datetime.now().date()}</lastmod>")
+lines.append("    <changefreq>daily</changefreq>")
+lines.append("    <priority>1.0</priority>")
+lines.append("  </url>")
+
+# 新闻列表
+for news in news_list:
+    lines.append("  <url>")
+    lines.append(f"    <loc>https://globalnews-5ose.onrender.com/news/{news['id']}</loc>")
+    lines.append(f"    <lastmod>{news['created_at'].date()}</lastmod>")
+    lines.append("    <changefreq>daily</changefreq>")
+    lines.append("    <priority>0.8</priority>")
+    lines.append("  </url>")
+
+lines.append('</urlset>')
+
+with open("sitemap.xml", "w", encoding="utf-8") as f:
+    f.write("\n".join(lines))
