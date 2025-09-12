@@ -54,16 +54,13 @@
     <span class="news-date">{{ news_item.created_at.strftime("%Y-%m-%d %H:%M") }}</span>
     <div class="share-buttons">
       <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.url }}" target="_blank">
-        <img src="/static/icons/facebook.png" alt="Facebook" style="width:24px;height:24px;">
+        <img src="/static/facebook.png" alt="Facebook" style="width:24px;height:24px;">
       </a>
       <a href="https://api.whatsapp.com/send?text={{ request.url }}" target="_blank">
-        <img src="/static/icons/whatsapp.png" alt="WhatsApp" style="width:24px;height:24px;">
+        <img src="/static/whatsapp.png" alt="WhatsApp" style="width:24px;height:24px;">
       </a>
       <a href="https://twitter.com/intent/tweet?text={{ news_item.title | urlencode }}&url={{ request.url }}" target="_blank">
-        <img src="/static/icons/twitter.png" alt="Twitter" style="width:24px;height:24px;">
-      </a>
-      <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ request.url }}" target="_blank">
-        <img src="/static/icons/linkedin.png" alt="LinkedIn" style="width:24px;height:24px;">
+        <img src="/static/twitter.png" alt="Twitter" style="width:24px;height:24px;">
       </a>
     </div>
   </div>
