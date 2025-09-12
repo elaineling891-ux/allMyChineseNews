@@ -32,11 +32,9 @@ def init_db():
         id INT AUTO_INCREMENT PRIMARY KEY,
         title TEXT,
         content TEXT,
-        link VARCHAR(500),
         image_url TEXT,
         category VARCHAR(100) DEFAULT 'all',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        UNIQUE KEY unique_link (link(191)),
         UNIQUE KEY unique_title (title(191))
     ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
     """)
@@ -45,39 +43,28 @@ def init_db():
     conn.close()
     print("✅ 数据库初始化完成（created_at 默认 SGT）")
 
-def news_exists(link: str) -> bool:
-    if not link:
-        return False
-    conn = get_conn()
-    cur = conn.cursor()
-    cur.execute("SELECT 1 FROM news WHERE link=%s LIMIT 1", (link,))
-    exists = cur.fetchone() is not None
-    cur.close()
-    conn.close()
-    return exists
-
-def insert_news(title, content, link=None, image_url=None, category='all'):
+def insert_news(title, content, image_url=None, category='all'):
     if not title or not content:
         return
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("""
-        INSERT INTO news (title, content, link, image_url, category)
-        VALUES (%s, %s, %s, %s, %s)
-        ON DUPLICATE KEY UPDATE link=link
-    """, (title, content, link, image_url, category))
+        INSERT INTO news (title, content, image_url, category)
+        VALUES (%s, %s, %s, %s)
+        ON DUPLICATE KEY UPDATE title=title
+    """, (title, content, image_url, category))
     conn.commit()
     cur.close()
     conn.close()
 
-def update_news(news_id, title, content, link=None, image_url=None, category='all'):
+def update_news(news_id, title, content, image_url=None, category='all'):
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("""
         UPDATE news
-        SET title=%s, content=%s, link=%s, image_url=%s, category=%s
+        SET title=%s, content=%s, image_url=%s, category=%s
         WHERE id=%s
-    """, (title, content, link, image_url, category, news_id))
+    """, (title, content, image_url, category, news_id))
     conn.commit()
     cur.close()
     conn.close()
@@ -94,7 +81,7 @@ def get_all_news(skip=0, limit=20):
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("""
-        SELECT id, title, content, link, image_url, category, created_at
+        SELECT id, title, content, image_url, category, created_at
         FROM news
         ORDER BY created_at DESC
         LIMIT %s OFFSET %s
@@ -108,10 +95,9 @@ def get_all_news(skip=0, limit=20):
             "id": row[0],
             "title": row[1],
             "content": row[2],
-            "link": row[3],
-            "image_url": row[4],
-            "category": row[5],
-            "created_at": row[6],
+            "image_url": row[3],
+            "category": row[4],
+            "created_at": row[5],
         })
     return news
 
@@ -119,7 +105,7 @@ def get_news_by_id(news_id: int):
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("""
-        SELECT id, title, content, link, image_url, category, created_at
+        SELECT id, title, content, image_url, category, created_at
         FROM news
         WHERE id=%s
         LIMIT 1
@@ -133,10 +119,9 @@ def get_news_by_id(news_id: int):
         "id": row[0],
         "title": row[1],
         "content": row[2],
-        "link": row[3],
-        "image_url": row[4],
-        "category": row[5],
-        "created_at": row[6],
+        "image_url": row[3],
+        "category": row[4],
+        "created_at": row[5],
     }
 
 def get_all_news_by_category(category: str, skip=0, limit=20):
@@ -144,14 +129,14 @@ def get_all_news_by_category(category: str, skip=0, limit=20):
     cur = conn.cursor()
     if category.lower() == "all":
         cur.execute("""
-            SELECT id, title, content, link, image_url, category, created_at
+            SELECT id, title, content, image_url, category, created_at
             FROM news
             ORDER BY created_at DESC
             LIMIT %s OFFSET %s
         """, (limit, skip))
     else:
         cur.execute("""
-            SELECT id, title, content, link, image_url, category, created_at
+            SELECT id, title, content, image_url, category, created_at
             FROM news
             WHERE category=%s
             ORDER BY created_at DESC
@@ -166,10 +151,9 @@ def get_all_news_by_category(category: str, skip=0, limit=20):
             "id": row[0],
             "title": row[1],
             "content": row[2],
-            "link": row[3],
-            "image_url": row[4],
-            "category": row[5],
-            "created_at": row[6],
+            "image_url": row[3],
+            "category": row[4],
+            "created_at": row[5],
         })
     return news
 
