@@ -5,6 +5,16 @@
 <title>{{ news_item.title }}</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-4EE0XYFMY0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-4EE0XYFMY0');
+</script>
+
 <meta property="og:title" content="{{ news_item.title }}" />
 <meta property="og:description" content="{{ news_item.summary if news_item.summary else news_item.content[:120] }}..." />
 <meta property="og:image" content="{{ news_item.image_url if news_item.image_url else 'https://yourdomain.com/static/default.jpg' }}" />
