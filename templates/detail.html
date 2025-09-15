@@ -5,6 +5,12 @@
 <title>{{ news_item.title }}</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
+<meta property="og:title" content="{{ news_item.title }}" />
+<meta property="og:description" content="{{ news_item.summary if news_item.summary else news_item.content[:120] }}..." />
+<meta property="og:image" content="{{ news_item.image_url if news_item.image_url else 'https://yourdomain.com/static/default.jpg' }}" />
+<meta property="og:url" content="https://globalnews-5ose.onrender.com/news/{{ news_item.id }}" />
+<meta property="og:type" content="article" />
+
 <!-- Adsense 脚本，只需一次 -->
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2460023182833054" crossorigin="anonymous"></script>
 
