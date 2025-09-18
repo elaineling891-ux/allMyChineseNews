@@ -30,7 +30,8 @@ async def periodic_fetch_news(interval=43200):
 KEEP_ALIVE_URLS = [
     "https://globalinternationalnews.onrender.com/",
     "https://globalnews-5ose.onrender.com/",
-    "https://www.mychinesenews.my"
+    "https://www.mychinesenews.my",
+    "https://allmychinesenews.onrender.com/"
 ]
 
 async def periodic_keep_alive(interval=300, retry_delay=60):
