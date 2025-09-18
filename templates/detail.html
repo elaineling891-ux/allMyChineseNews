@@ -17,6 +17,13 @@
 
   gtag('config', 'G-4EE0XYFMY0');
 </script>
+
+<!-- Open Graph / Facebook -->
+<meta property="og:title" content="{{ news_item.title }}">
+<meta property="og:description" content="{{ news_item.content[:120] }}...">
+<meta property="og:image" content="{{ news_item.image_url if news_item.image_url else 'https://globalnews-5ose.onrender.com/static/default.jpg' }}">
+<meta property="og:url" content="https://globalnews-5ose.onrender.com/news/{{ news_item.id }}">
+<meta property="og:type" content="article">
   
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <style>
