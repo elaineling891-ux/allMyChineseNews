@@ -128,7 +128,7 @@ def add_news(
     category: str = Form('all')
 ):
     insert_news(title, content, image_url, category)
-    generate_sitemap()
+    #generate_sitemap()
     return RedirectResponse("/maintenance", status_code=303)
 
 @app.get("/maintenance", response_class=HTMLResponse)
