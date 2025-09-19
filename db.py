@@ -168,31 +168,50 @@ def get_all_db():
     conn.close()
     return columns, rows
 
-def get_prev_news(news_id: int, category: int):
+def get_prev_news(news_id: int, category: str):
     conn = get_conn()
     cur = conn.cursor()
-    cur.execute("""
-        SELECT id, title 
-        FROM news 
-        WHERE id < %s AND category = %s
-        ORDER BY id DESC 
-        LIMIT 1
-    """, (news_id, category))
+    if category.lower() == "all":
+        # 不限制 category
+        cur.execute("""
+            SELECT id, title
+            FROM news
+            WHERE id < %s
+            ORDER BY id DESC
+            LIMIT 1
+        """, (news_id,))
+    else:
+        cur.execute("""
+            SELECT id, title
+            FROM news
+            WHERE id < %s AND category = %s
+            ORDER BY id DESC
+            LIMIT 1
+        """, (news_id, category))
     row = cur.fetchone()
     cur.close()
     conn.close()
     return {"id": row[0], "title": row[1]} if row else None
 
-def get_next_news(news_id: int, category: int):
+def get_next_news(news_id: int, category: str):
     conn = get_conn()
     cur = conn.cursor()
-    cur.execute("""
-        SELECT id, title 
-        FROM news 
-        WHERE id > %s AND category = %s
-        ORDER BY id ASC 
-        LIMIT 1
-    """, (news_id, category))
+    if category.lower() == "all":
+        cur.execute("""
+            SELECT id, title
+            FROM news
+            WHERE id > %s
+            ORDER BY id ASC
+            LIMIT 1
+        """, (news_id,))
+    else:
+        cur.execute("""
+            SELECT id, title
+            FROM news
+            WHERE id > %s AND category = %s
+            ORDER BY id ASC
+            LIMIT 1
+        """, (news_id, category))
     row = cur.fetchone()
     cur.close()
     conn.close()
