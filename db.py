@@ -168,13 +168,13 @@ def get_all_db():
     conn.close()
     return columns, rows
 
-def get_prev_news(news_id: int):
+def get_prev_news(news_id: int, category: int):
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("""
         SELECT id, title 
         FROM news 
-        WHERE id < %s 
+        WHERE id < %s AND category = %s
         ORDER BY id DESC 
         LIMIT 1
     """, (news_id,))
@@ -183,13 +183,13 @@ def get_prev_news(news_id: int):
     conn.close()
     return {"id": row[0], "title": row[1]} if row else None
 
-def get_next_news(news_id: int):
+def get_next_news(news_id: int, category: int):
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("""
         SELECT id, title 
         FROM news 
-        WHERE id > %s 
+        WHERE id > %s AND category = %s
         ORDER BY id ASC 
         LIMIT 1
     """, (news_id,))
