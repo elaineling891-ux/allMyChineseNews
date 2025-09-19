@@ -67,8 +67,9 @@ async def news_detail(request: Request, news_id: int):
     if not news_item:
         return HTMLResponse(content="新闻不存在", status_code=404)
 
-    prev_news = get_prev_news(news_id)
-    next_news = get_next_news(news_id)
+    category = news_item["category"]
+    prev_news = get_prev_news(news_id, category)
+    next_news = get_next_news(news_id, category)
 
     return templates.TemplateResponse(
         "detail.html",
