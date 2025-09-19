@@ -177,7 +177,7 @@ def get_prev_news(news_id: int, category: int):
         WHERE id < %s AND category = %s
         ORDER BY id DESC 
         LIMIT 1
-    """, (news_id,))
+    """, (news_id, category))
     row = cur.fetchone()
     cur.close()
     conn.close()
@@ -192,7 +192,7 @@ def get_next_news(news_id: int, category: int):
         WHERE id > %s AND category = %s
         ORDER BY id ASC 
         LIMIT 1
-    """, (news_id,))
+    """, (news_id, category))
     row = cur.fetchone()
     cur.close()
     conn.close()
