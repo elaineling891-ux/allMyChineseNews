@@ -1,7 +1,6 @@
 import os
 import re
 from mysql.connector import pooling
-from contextlib import contextmanager
 
 # -------------------- 懒加载连接池 --------------------
 _pool = None
@@ -11,14 +10,15 @@ def get_pool():
     global _pool
     if _pool is None:
         DB_URL = os.getenv("DATABASE_URL")  # 格式: mysql://user:password@host:port/database
-        pattern = r"mysql://(.*?):(.*?)@(.*?):(\d+)/(.*)"
+        pattern = r'mysql://(.*?):(.*?)@(.*?):(\d+)/(.*)'
         m = re.match(pattern, DB_URL)
         if not m:
             raise ValueError("DATABASE_URL 格式错误")
         user, password, host, port, database = m.groups()
 
-        max_conn = int(os.getenv("MAX_CONNECTIONS", "5"))  # Render 免费 MySQL 一般是 5
-        safe_pool_size = max(1, max_conn // 2)
+        # Render 免费 MySQL 通常最大 5，这里安全设置为 2
+        max_conn = int(os.getenv("MAX_CONNECTIONS", "5"))
+        safe_pool_size = max(1, min(2, max_conn - 1))
 
         _pool = pooling.MySQLConnectionPool(
             pool_name="mypool",
@@ -30,23 +30,14 @@ def get_pool():
             port=int(port),
             database=database,
             charset="utf8mb4",
-            auth_plugin="mysql_native_password",
+            auth_plugin="mysql_native_password"
         )
         print(f"✅ MySQL 连接池初始化完成，pool_size={safe_pool_size}")
     return _pool
 
-
-@contextmanager
 def get_conn():
-    """获取一个连接（自动 close）"""
-    conn = None
-    try:
-        conn = get_pool().get_connection()
-        yield conn
-    finally:
-        if conn:
-            conn.close()
-
+    """ 获取一个连接（记得用完要 close()） """
+    return get_pool().get_connection()
 
 # -------------------- 数据库操作 --------------------
 
@@ -62,16 +53,18 @@ def init_db():
         UNIQUE KEY unique_title (title(191))
     ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
     """
-    with get_conn() as conn:
+    conn = get_conn()
+    try:
         cur = conn.cursor()
         cur.execute("SET time_zone = '+08:00';")
         cur.execute(query)
         conn.commit()
+    finally:
         cur.close()
+        conn.close()
     print("✅ 数据库初始化完成（created_at 默认 SGT）")
 
-
-def insert_news(title, content, image_url=None, category="all"):
+def insert_news(title, content, image_url=None, category='all'):
     if not title or not content:
         return
     query = """
@@ -79,34 +72,40 @@ def insert_news(title, content, image_url=None, category="all"):
         VALUES (%s, %s, %s, %s)
         ON DUPLICATE KEY UPDATE title=title
     """
-    with get_conn() as conn:
+    conn = get_conn()
+    try:
         cur = conn.cursor()
         cur.execute(query, (title, content, image_url, category))
         conn.commit()
+    finally:
         cur.close()
+        conn.close()
 
-
-def update_news(news_id, title, content, image_url=None, category="all"):
+def update_news(news_id, title, content, image_url=None, category='all'):
     query = """
         UPDATE news
         SET title=%s, content=%s, image_url=%s, category=%s
         WHERE id=%s
     """
-    with get_conn() as conn:
+    conn = get_conn()
+    try:
         cur = conn.cursor()
         cur.execute(query, (title, content, image_url, category, news_id))
         conn.commit()
+    finally:
         cur.close()
-
+        conn.close()
 
 def delete_news(news_id):
     query = "DELETE FROM news WHERE id=%s"
-    with get_conn() as conn:
+    conn = get_conn()
+    try:
         cur = conn.cursor()
         cur.execute(query, (news_id,))
         conn.commit()
+    finally:
         cur.close()
-
+        conn.close()
 
 def get_all_news(skip=0, limit=20):
     query = """
@@ -115,13 +114,25 @@ def get_all_news(skip=0, limit=20):
         ORDER BY created_at DESC
         LIMIT %s OFFSET %s
     """
-    with get_conn() as conn:
-        cur = conn.cursor(dictionary=True)
+    conn = get_conn()
+    try:
+        cur = conn.cursor()
         cur.execute(query, (limit, skip))
         rows = cur.fetchall()
+        return [
+            {
+                "id": row[0],
+                "title": row[1],
+                "content": row[2],
+                "image_url": row[3],
+                "category": row[4],
+                "created_at": row[5],
+            }
+            for row in rows
+        ]
+    finally:
         cur.close()
-        return rows
-
+        conn.close()
 
 def get_news_by_id(news_id: int):
     query = """
@@ -130,13 +141,24 @@ def get_news_by_id(news_id: int):
         WHERE id=%s
         LIMIT 1
     """
-    with get_conn() as conn:
-        cur = conn.cursor(dictionary=True)
+    conn = get_conn()
+    try:
+        cur = conn.cursor()
         cur.execute(query, (news_id,))
         row = cur.fetchone()
+        if not row:
+            return None
+        return {
+            "id": row[0],
+            "title": row[1],
+            "content": row[2],
+            "image_url": row[3],
+            "category": row[4],
+            "created_at": row[5],
+        }
+    finally:
         cur.close()
-        return row
-
+        conn.close()
 
 def get_all_news_by_category(category: str, skip=0, limit=20):
     if category.lower() == "all":
@@ -148,24 +170,38 @@ def get_all_news_by_category(category: str, skip=0, limit=20):
         ORDER BY created_at DESC
         LIMIT %s OFFSET %s
     """
-    with get_conn() as conn:
-        cur = conn.cursor(dictionary=True)
+    conn = get_conn()
+    try:
+        cur = conn.cursor()
         cur.execute(query, (category, limit, skip))
         rows = cur.fetchall()
+        return [
+            {
+                "id": row[0],
+                "title": row[1],
+                "content": row[2],
+                "image_url": row[3],
+                "category": row[4],
+                "created_at": row[5],
+            }
+            for row in rows
+        ]
+    finally:
         cur.close()
-        return rows
-
+        conn.close()
 
 def get_all_db():
-    with get_conn() as conn:
+    conn = get_conn()
+    try:
         cur = conn.cursor()
         cur.execute("DESCRIBE news")
         columns = [col[0] for col in cur.fetchall()]
         cur.execute("SELECT * FROM news ORDER BY created_at DESC")
         rows = cur.fetchall()
+        return columns, rows
+    finally:
         cur.close()
-    return columns, rows
-
+        conn.close()
 
 def get_prev_news(news_id: int, category: str):
     query = """
@@ -175,13 +211,15 @@ def get_prev_news(news_id: int, category: str):
         ORDER BY id DESC 
         LIMIT 1
     """
-    with get_conn() as conn:
-        cur = conn.cursor(dictionary=True)
+    conn = get_conn()
+    try:
+        cur = conn.cursor()
         cur.execute(query, (news_id, category))
         row = cur.fetchone()
+        return {"id": row[0], "title": row[1]} if row else None
+    finally:
         cur.close()
-        return row
-
+        conn.close()
 
 def get_next_news(news_id: int, category: str):
     query = """
@@ -191,9 +229,12 @@ def get_next_news(news_id: int, category: str):
         ORDER BY id ASC 
         LIMIT 1
     """
-    with get_conn() as conn:
-        cur = conn.cursor(dictionary=True)
+    conn = get_conn()
+    try:
+        cur = conn.cursor()
         cur.execute(query, (news_id, category))
         row = cur.fetchone()
+        return {"id": row[0], "title": row[1]} if row else None
+    finally:
         cur.close()
-        return row
+        conn.close()
