@@ -1,5 +1,6 @@
 import os
 import re
+from datetime import datetime, timezone, timedelta
 from mysql.connector import pooling
 
 # -------------------- 懒加载连接池 --------------------
@@ -57,6 +58,19 @@ def execute(query, params=None, fetchone=False, fetchall=False, commit=False):
             conn.close()  # 🔑 归还到连接池
 
 
+# -------------------- 时间工具：UTC → 新加坡 --------------------
+SGT = timezone(timedelta(hours=8))
+
+def to_sgt(dt: datetime) -> datetime:
+    """把 UTC 时间转换成新加坡时间"""
+    if dt is None:
+        return None
+    if dt.tzinfo is None:
+        # MySQL 返回的通常是 naive datetime → 默认当 UTC
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(SGT)
+
+
 # -------------------- 数据库操作 --------------------
 def init_db():
     query = """
@@ -70,10 +84,8 @@ def init_db():
         UNIQUE KEY unique_title (title(191))
     ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
     """
-    # 只在这里一次性设置时区和建表，避免重复开连接
-    execute("SET time_zone = '+08:00';", commit=True)
     execute(query, commit=True)
-    print("✅ 数据库初始化完成（created_at 默认 SGT）")
+    print("✅ 数据库初始化完成（created_at 存 UTC，取出时转 SGT）")
 
 
 def insert_news(title, content, image_url=None, category='all'):
@@ -116,7 +128,7 @@ def get_all_news(skip=0, limit=20):
             "content": row[2],
             "image_url": row[3],
             "category": row[4],
-            "created_at": row[5],
+            "created_at": to_sgt(row[5]),
         }
         for row in rows
     ]
@@ -138,7 +150,7 @@ def get_news_by_id(news_id: int):
         "content": row[2],
         "image_url": row[3],
         "category": row[4],
-        "created_at": row[5],
+        "created_at": to_sgt(row[5]),
     }
 
 
@@ -160,7 +172,7 @@ def get_all_news_by_category(category: str, skip=0, limit=20):
             "content": row[2],
             "image_url": row[3],
             "category": row[4],
-            "created_at": row[5],
+            "created_at": to_sgt(row[5]),
         }
         for row in rows
     ]
@@ -170,28 +182,31 @@ def get_all_db():
     cols = execute("DESCRIBE news", fetchall=True)
     columns = [col[0] for col in cols]
     rows = execute("SELECT * FROM news ORDER BY created_at DESC", fetchall=True)
-    return columns, rows
+    # 结果也转 SGT
+    return columns, [
+        list(row[:5]) + [to_sgt(row[5])] for row in rows
+    ]
 
 
 def get_prev_news(news_id: int, category: str):
     query = """
-        SELECT id, title 
+        SELECT id, title, created_at
         FROM news 
         WHERE id < %s AND category = %s
         ORDER BY id DESC 
         LIMIT 1
     """
     row = execute(query, (news_id, category), fetchone=True)
-    return {"id": row[0], "title": row[1]} if row else None
+    return {"id": row[0], "title": row[1], "created_at": to_sgt(row[2])} if row else None
 
 
 def get_next_news(news_id: int, category: str):
     query = """
-        SELECT id, title 
+        SELECT id, title, created_at
         FROM news 
         WHERE id > %s AND category = %s
         ORDER BY id ASC 
         LIMIT 1
     """
     row = execute(query, (news_id, category), fetchone=True)
-    return {"id": row[0], "title": row[1]} if row else None
+    return {"id": row[0], "title": row[1], "created_at": to_sgt(row[2])} if row else None
