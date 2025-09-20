@@ -1,6 +1,6 @@
 import os
 import re
-from datetime import datetime, timezone, timedelta
+from datetime import timezone, timedelta
 from mysql.connector import pooling
 
 # -------------------- 懒加载连接池 --------------------
@@ -17,10 +17,10 @@ def get_pool():
             raise ValueError("DATABASE_URL 格式错误")
         user, password, host, port, database = m.groups()
 
-        # ⚠️ 免费 MySQL 通常 max_user_connections = 5
+        # 免费 MySQL 通常限制 max_user_connections=5
         _pool = pooling.MySQLConnectionPool(
             pool_name="mypool",
-            pool_size=3,  # 留点余量，避免超过最大连接数
+            pool_size=1,  # ⚠️ 只开 1 个连接，避免超过限制
             user=user,
             password=password,
             host=host,
@@ -58,36 +58,42 @@ def execute(query, params=None, fetchone=False, fetchall=False, commit=False):
             conn.close()  # 🔑 归还到连接池
 
 
-# -------------------- 时间工具：UTC → 新加坡 --------------------
-SGT = timezone(timedelta(hours=8))
-
-def to_sgt(dt: datetime) -> datetime:
-    """把 UTC 时间转换成新加坡时间"""
-    if dt is None:
-        return None
-    if dt.tzinfo is None:
-        # MySQL 返回的通常是 naive datetime → 默认当 UTC
-        dt = dt.replace(tzinfo=timezone.utc)
-    return dt.astimezone(SGT)
-
-
 # -------------------- 数据库操作 --------------------
 def init_db():
-    query = """
-    CREATE TABLE IF NOT EXISTS news (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        title TEXT,
-        content TEXT,
-        image_url TEXT,
-        category VARCHAR(100) DEFAULT 'all',
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        UNIQUE KEY unique_title (title(191))
-    ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-    """
-    execute(query, commit=True)
-    print("✅ 数据库初始化完成（created_at 存 UTC，取出时转 SGT）")
+    """初始化数据库（只执行一次）"""
+    conn = get_conn()
+    cur = conn.cursor()
+    try:
+        # 一次性设置时区和建表
+        cur.execute("SET time_zone = '+08:00';")
+        cur.execute("""
+        CREATE TABLE IF NOT EXISTS news (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            title TEXT,
+            content TEXT,
+            image_url TEXT,
+            category VARCHAR(100) DEFAULT 'all',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE KEY unique_title (title(191))
+        ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+        """)
+        conn.commit()
+        print("✅ 数据库初始化完成（created_at 默认 SGT）")
+    finally:
+        cur.close()
+        conn.close()
 
 
+# -------------------- 工具函数：转新加坡时间 --------------------
+def to_sgt(dt):
+    if not dt:
+        return None
+    return dt.replace(tzinfo=timezone.utc).astimezone(
+        timezone(timedelta(hours=8))
+    )
+
+
+# -------------------- CURD 操作 --------------------
 def insert_news(title, content, image_url=None, category='all'):
     if not title or not content:
         return
@@ -182,31 +188,28 @@ def get_all_db():
     cols = execute("DESCRIBE news", fetchall=True)
     columns = [col[0] for col in cols]
     rows = execute("SELECT * FROM news ORDER BY created_at DESC", fetchall=True)
-    # 结果也转 SGT
-    return columns, [
-        list(row[:5]) + [to_sgt(row[5])] for row in rows
-    ]
+    return columns, rows
 
 
 def get_prev_news(news_id: int, category: str):
     query = """
-        SELECT id, title, created_at
+        SELECT id, title 
         FROM news 
         WHERE id < %s AND category = %s
         ORDER BY id DESC 
         LIMIT 1
     """
     row = execute(query, (news_id, category), fetchone=True)
-    return {"id": row[0], "title": row[1], "created_at": to_sgt(row[2])} if row else None
+    return {"id": row[0], "title": row[1]} if row else None
 
 
 def get_next_news(news_id: int, category: str):
     query = """
-        SELECT id, title, created_at
+        SELECT id, title 
         FROM news 
         WHERE id > %s AND category = %s
         ORDER BY id ASC 
         LIMIT 1
     """
     row = execute(query, (news_id, category), fetchone=True)
-    return {"id": row[0], "title": row[1], "created_at": to_sgt(row[2])} if row else None
+    return {"id": row[0], "title": row[1]} if row else None
