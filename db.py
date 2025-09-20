@@ -1,6 +1,7 @@
 import os
 import re
 from mysql.connector import pooling
+from contextlib import contextmanager
 
 # -------------------- 懒加载连接池 --------------------
 _pool = None
@@ -10,14 +11,13 @@ def get_pool():
     global _pool
     if _pool is None:
         DB_URL = os.getenv("DATABASE_URL")  # 格式: mysql://user:password@host:port/database
-        pattern = r'mysql://(.*?):(.*?)@(.*?):(\d+)/(.*)'
+        pattern = r"mysql://(.*?):(.*?)@(.*?):(\d+)/(.*)"
         m = re.match(pattern, DB_URL)
         if not m:
             raise ValueError("DATABASE_URL 格式错误")
         user, password, host, port, database = m.groups()
 
-        # 自动调整 pool_size，避免超过 MySQL 限制
-        max_conn = int(os.getenv("MAX_CONNECTIONS", "5"))  # Render 免费 MySQL 一般 5
+        max_conn = int(os.getenv("MAX_CONNECTIONS", "5"))  # Render 免费 MySQL 一般是 5
         safe_pool_size = max(1, max_conn // 2)
 
         _pool = pooling.MySQLConnectionPool(
@@ -30,14 +30,23 @@ def get_pool():
             port=int(port),
             database=database,
             charset="utf8mb4",
-            auth_plugin="mysql_native_password"
+            auth_plugin="mysql_native_password",
         )
         print(f"✅ MySQL 连接池初始化完成，pool_size={safe_pool_size}")
     return _pool
 
+
+@contextmanager
 def get_conn():
-    """ 获取一个连接（调用时才真正建池） """
-    return get_pool().get_connection()
+    """获取一个连接（自动 close）"""
+    conn = None
+    try:
+        conn = get_pool().get_connection()
+        yield conn
+    finally:
+        if conn:
+            conn.close()
+
 
 # -------------------- 数据库操作 --------------------
 
@@ -54,13 +63,15 @@ def init_db():
     ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
     """
     with get_conn() as conn:
-        with conn.cursor() as cur:
-            cur.execute("SET time_zone = '+08:00';")
-            cur.execute(query)
+        cur = conn.cursor()
+        cur.execute("SET time_zone = '+08:00';")
+        cur.execute(query)
         conn.commit()
+        cur.close()
     print("✅ 数据库初始化完成（created_at 默认 SGT）")
 
-def insert_news(title, content, image_url=None, category='all'):
+
+def insert_news(title, content, image_url=None, category="all"):
     if not title or not content:
         return
     query = """
@@ -69,27 +80,33 @@ def insert_news(title, content, image_url=None, category='all'):
         ON DUPLICATE KEY UPDATE title=title
     """
     with get_conn() as conn:
-        with conn.cursor() as cur:
-            cur.execute(query, (title, content, image_url, category))
+        cur = conn.cursor()
+        cur.execute(query, (title, content, image_url, category))
         conn.commit()
+        cur.close()
 
-def update_news(news_id, title, content, image_url=None, category='all'):
+
+def update_news(news_id, title, content, image_url=None, category="all"):
     query = """
         UPDATE news
         SET title=%s, content=%s, image_url=%s, category=%s
         WHERE id=%s
     """
     with get_conn() as conn:
-        with conn.cursor() as cur:
-            cur.execute(query, (title, content, image_url, category, news_id))
+        cur = conn.cursor()
+        cur.execute(query, (title, content, image_url, category, news_id))
         conn.commit()
+        cur.close()
+
 
 def delete_news(news_id):
     query = "DELETE FROM news WHERE id=%s"
     with get_conn() as conn:
-        with conn.cursor() as cur:
-            cur.execute(query, (news_id,))
+        cur = conn.cursor()
+        cur.execute(query, (news_id,))
         conn.commit()
+        cur.close()
+
 
 def get_all_news(skip=0, limit=20):
     query = """
@@ -98,20 +115,13 @@ def get_all_news(skip=0, limit=20):
         ORDER BY created_at DESC
         LIMIT %s OFFSET %s
     """
-    news = []
     with get_conn() as conn:
-        with conn.cursor() as cur:
-            cur.execute(query, (limit, skip))
-            for row in cur.fetchall():
-                news.append({
-                    "id": row[0],
-                    "title": row[1],
-                    "content": row[2],
-                    "image_url": row[3],
-                    "category": row[4],
-                    "created_at": row[5],
-                })
-    return news
+        cur = conn.cursor(dictionary=True)
+        cur.execute(query, (limit, skip))
+        rows = cur.fetchall()
+        cur.close()
+        return rows
+
 
 def get_news_by_id(news_id: int):
     query = """
@@ -121,19 +131,12 @@ def get_news_by_id(news_id: int):
         LIMIT 1
     """
     with get_conn() as conn:
-        with conn.cursor() as cur:
-            cur.execute(query, (news_id,))
-            row = cur.fetchone()
-            if not row:
-                return None
-            return {
-                "id": row[0],
-                "title": row[1],
-                "content": row[2],
-                "image_url": row[3],
-                "category": row[4],
-                "created_at": row[5],
-            }
+        cur = conn.cursor(dictionary=True)
+        cur.execute(query, (news_id,))
+        row = cur.fetchone()
+        cur.close()
+        return row
+
 
 def get_all_news_by_category(category: str, skip=0, limit=20):
     if category.lower() == "all":
@@ -145,29 +148,24 @@ def get_all_news_by_category(category: str, skip=0, limit=20):
         ORDER BY created_at DESC
         LIMIT %s OFFSET %s
     """
-    news = []
     with get_conn() as conn:
-        with conn.cursor() as cur:
-            cur.execute(query, (category, limit, skip))
-            for row in cur.fetchall():
-                news.append({
-                    "id": row[0],
-                    "title": row[1],
-                    "content": row[2],
-                    "image_url": row[3],
-                    "category": row[4],
-                    "created_at": row[5],
-                })
-    return news
+        cur = conn.cursor(dictionary=True)
+        cur.execute(query, (category, limit, skip))
+        rows = cur.fetchall()
+        cur.close()
+        return rows
+
 
 def get_all_db():
     with get_conn() as conn:
-        with conn.cursor() as cur:
-            cur.execute("DESCRIBE news")
-            columns = [col[0] for col in cur.fetchall()]
-            cur.execute("SELECT * FROM news ORDER BY created_at DESC")
-            rows = cur.fetchall()
+        cur = conn.cursor()
+        cur.execute("DESCRIBE news")
+        columns = [col[0] for col in cur.fetchall()]
+        cur.execute("SELECT * FROM news ORDER BY created_at DESC")
+        rows = cur.fetchall()
+        cur.close()
     return columns, rows
+
 
 def get_prev_news(news_id: int, category: str):
     query = """
@@ -178,10 +176,12 @@ def get_prev_news(news_id: int, category: str):
         LIMIT 1
     """
     with get_conn() as conn:
-        with conn.cursor() as cur:
-            cur.execute(query, (news_id, category))
-            row = cur.fetchone()
-            return {"id": row[0], "title": row[1]} if row else None
+        cur = conn.cursor(dictionary=True)
+        cur.execute(query, (news_id, category))
+        row = cur.fetchone()
+        cur.close()
+        return row
+
 
 def get_next_news(news_id: int, category: str):
     query = """
@@ -192,7 +192,8 @@ def get_next_news(news_id: int, category: str):
         LIMIT 1
     """
     with get_conn() as conn:
-        with conn.cursor() as cur:
-            cur.execute(query, (news_id, category))
-            row = cur.fetchone()
-            return {"id": row[0], "title": row[1]} if row else None
+        cur = conn.cursor(dictionary=True)
+        cur.execute(query, (news_id, category))
+        row = cur.fetchone()
+        cur.close()
+        return row
