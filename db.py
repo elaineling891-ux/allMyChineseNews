@@ -1,48 +1,60 @@
 import os
 import re
-import mysql.connector
+from mysql.connector import pooling
 
-# -------------------- 获取连接 --------------------
+# -------------------- 懒加载连接池 --------------------
+_pool = None
+
+def get_pool():
+    """第一次调用时才真正建立连接池"""
+    global _pool
+    if _pool is None:
+        DB_URL = os.getenv("DATABASE_URL")  # 格式: mysql://user:pass@host:port/db
+        pattern = r'mysql://(.*?):(.*?)@(.*?):(\d+)/(.*)'
+        m = re.match(pattern, DB_URL)
+        if not m:
+            raise ValueError("DATABASE_URL 格式错误")
+        user, password, host, port, database = m.groups()
+
+        # ⚠️ 免费 MySQL 通常 max_user_connections = 5
+        _pool = pooling.MySQLConnectionPool(
+            pool_name="mypool",
+            pool_size=3,  # 留点余量，避免超过最大连接数
+            user=user,
+            password=password,
+            host=host,
+            port=int(port),
+            database=database,
+            charset="utf8mb4",
+            auth_plugin="mysql_native_password"
+        )
+    return _pool
+
+
 def get_conn():
-    """每次都新建连接，用完即关（适合 Render 免费 MySQL）"""
-    DB_URL = os.getenv("DATABASE_URL")  # 格式: mysql://user:pass@host:port/db
-    pattern = r'mysql://(.*?):(.*?)@(.*?):(\d+)/(.*)'
-    m = re.match(pattern, DB_URL)
-    if not m:
-        raise ValueError("DATABASE_URL 格式错误")
-    user, password, host, port, database = m.groups()
-
-    conn = mysql.connector.connect(
-        user=user,
-        password=password,
-        host=host,
-        port=int(port),
-        database=database,
-        charset="utf8mb4",
-        auth_plugin="mysql_native_password"
-    )
-    return conn
+    """从连接池获取连接"""
+    return get_pool().get_connection()
 
 
 # -------------------- 通用执行函数 --------------------
 def execute(query, params=None, fetchone=False, fetchall=False, commit=False):
-    conn = None
+    conn, cur, result = None, None, None
     try:
         conn = get_conn()
         cur = conn.cursor()
         cur.execute(query, params or ())
-        result = None
         if fetchone:
             result = cur.fetchone()
         elif fetchall:
             result = cur.fetchall()
         if commit:
             conn.commit()
-        cur.close()
         return result
     finally:
+        if cur:
+            cur.close()
         if conn:
-            conn.close()  # 🔑 确保释放
+            conn.close()  # 🔑 归还到连接池
 
 
 # -------------------- 数据库操作 --------------------
@@ -58,7 +70,8 @@ def init_db():
         UNIQUE KEY unique_title (title(191))
     ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
     """
-    execute("SET time_zone = '+08:00';")
+    # 只在这里一次性设置时区和建表，避免重复开连接
+    execute("SET time_zone = '+08:00';", commit=True)
     execute(query, commit=True)
     print("✅ 数据库初始化完成（created_at 默认 SGT）")
 
