@@ -5,7 +5,7 @@
 <title>{{ news_item.title }}</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<!-- Adsense 脚本，只需一次 -->
+<!-- Adsense 脚本 -->
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2460023182833054" crossorigin="anonymous"></script>
 
 <!-- Google tag (gtag.js) -->
@@ -14,7 +14,6 @@
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-
   gtag('config', 'G-4EE0XYFMY0');
 </script>
 
@@ -24,47 +23,82 @@
 <meta property="og:image" content="{{ news_item.image_url if news_item.image_url else 'https://globalnews-5ose.onrender.com/static/default.jpg' }}">
 <meta property="og:url" content="https://globalnews-5ose.onrender.com/news/{{ news_item.id }}">
 <meta property="og:type" content="article">
-  
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
 <style>
-  body { background-color: #f9f9f9; font-family: "Microsoft YaHei", sans-serif; }
-  .navbar { background: linear-gradient(90deg, #007bff, #00c6ff); }
-  .navbar-brand, .navbar-nav .nav-link { color: white !important; }
-  .news-date { font-size: 0.85rem; color: #888; margin-left: 5px; }
-  .news-image { width: 100%; max-height: 400px; object-fit: cover; margin-bottom: 20px; border-radius: 8px; }
-  footer { margin-top: 30px; text-align: center; padding: 20px; background-color: #f1f1f1; font-size: 0.9rem; color: #666; }
-  footer a { color: #007bff; text-decoration: none; margin: 0 5px; }
-  footer a:hover { text-decoration: underline; }
+body {
+  font-family: Arial, sans-serif;
+  margin:0;
+  padding:0;
+  background:#f5f5f5;
+  display:flex;
+  justify-content:center;
+}
+.container {
+  width:100%;
+  max-width:1024px;
+  background:#fff;
+  padding:15px;
+  box-shadow:0 1px 4px rgba(0,0,0,0.1);
+  margin-top:10px;
+}
 
-  .ads-top, .ads-middle {
-    text-align: center;
-    margin: 15px 0;
-  }
+header {
+  background:#222;
+  color:#fff;
+  padding:10px 20px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+}
+header h1 { margin:0; font-size:20px; }
+nav { display:flex; flex-wrap:wrap; gap:10px; }
+nav a {
+  color:#fff; text-decoration:none; font-size:14px;
+  padding:4px 8px; border-radius:4px; transition:background 0.2s;
+}
+nav a:hover { background:rgba(255,255,255,0.2); }
 
-  ins.adsbygoogle { display:block; }
+.news-date { font-size:0.85rem; color:#888; margin-left:5px; }
+.news-image {
+  width:100%;
+  max-height:400px;
+  object-fit:cover;
+  margin:15px 0;
+  border-radius:6px;
+}
+
+.ads-top, .ads-middle { text-align:center; margin:15px 0; }
+ins.adsbygoogle { display:block; }
+
+footer {
+  text-align:center;
+  padding:15px;
+  background:#222;
+  color:#fff;
+  margin-top:20px;
+  font-size:12px;
+}
+footer a { color:#fff; text-decoration:none; margin:0 4px; }
+footer a:hover { text-decoration:underline; }
 </style>
 </head>
 <body>
+<div class="container">
 
-<nav class="navbar navbar-expand-lg">
-  <div class="container">
-    <a class="navbar-brand" href="/">我报</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav ms-auto">
-        <li class="nav-item"><a class="nav-link" href="/about">关于我们</a></li>
-        <li class="nav-item"><a class="nav-link" href="/contact">联系方式</a></li>
-        <li class="nav-item"><a class="nav-link" href="/privacy">隐私政策</a></li>
-        <li class="nav-item"><a class="nav-link" href="/terms">服务条款</a></li>
-        <li class="nav-item"><a class="nav-link" href="/disclaimer">免责声明</a></li>
-      </ul>
-    </div>
-  </div>
-</nav>
+<header>
+  <h1>🌐 我报</h1>
+  <nav>
+    <a href="/">首页</a>
+    <a href="/category/国内">国内</a>
+    <a href="/category/国际">国际</a>
+    <a href="/category/娱乐">娱乐</a>
+    <a href="/category/体育">体育</a>
+    <a href="/category/财经">财经</a>
+  </nav>
+</header>
 
-<div class="container mt-4">
+<main>
   <h2 class="mb-3">{{ news_item.title }}</h2>
   <span class="news-date">{{ news_item.created_at.strftime("%Y-%m-%d %H:%M") }}</span>
 
@@ -102,36 +136,35 @@
   {% endfor %}
 
   <!-- 上一条 / 下一条 -->
-  <div class="container mt-4 mb-4">
-    <div class="row">
-      {% if prev_news %}
-      <div class="col-md-6 text-start">
-        <a href="/news/{{ prev_news.id }}" class="d-block p-3 border rounded bg-light">
-          <small class="text-muted">上一条</small><br>{{ prev_news.title }}
-        </a>
-      </div>
-      {% endif %}
-      {% if next_news %}
-      <div class="col-md-6 text-end">
-        <a href="/news/{{ next_news.id }}" class="d-block p-3 border rounded bg-light">
-          <small class="text-muted">下一条</small><br>{{ next_news.title }}
-        </a>
-      </div>
-      {% endif %}
+  <div class="row" style="display:flex; gap:10px; margin-top:20px;">
+    {% if prev_news %}
+    <div style="flex:1;">
+      <a href="/news/{{ prev_news.id }}" style="display:block; padding:10px; border:1px solid #ddd; border-radius:4px; background:#f9f9f9; text-decoration:none; color:#333;">
+        <small class="text-muted">上一条</small><br>{{ prev_news.title }}
+      </a>
     </div>
+    {% endif %}
+    {% if next_news %}
+    <div style="flex:1; text-align:right;">
+      <a href="/news/{{ next_news.id }}" style="display:block; padding:10px; border:1px solid #ddd; border-radius:4px; background:#f9f9f9; text-decoration:none; color:#333;">
+        <small class="text-muted">下一条</small><br>{{ next_news.title }}
+      </a>
+    </div>
+    {% endif %}
   </div>
-</div>
+</main>
 
 <footer>
   &copy; {{ year }} 我报 | Powered by FastAPI <br>
   <a href="/about">关于我们</a> | 
   <a href="/contact">联系方式</a> | 
   <a href="/privacy">隐私政策</a> |
-  <a href="/terms">服务条款</a> | 
+  <a href="/terms">服务条款</a> |
   <a href="/disclaimer">免责声明</a>
 </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</div>
+
 <script>
 window.addEventListener('load', () => {
     document.querySelectorAll('ins.adsbygoogle').forEach(ins => {
