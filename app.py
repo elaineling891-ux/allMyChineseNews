@@ -15,7 +15,41 @@ templates = Jinja2Templates(directory="templates")
 @app.on_event("startup")
 async def startup_event():
     init_db()
+    init_sitemap()
     asyncio.create_task(periodic_keep_alive(300))
+
+import os
+
+SITEMAP_PATH = "sitemap.xml"
+
+def init_sitemap():
+    # 如果 sitemap 已存在就跳过
+    if os.path.exists(SITEMAP_PATH):
+        return
+    news_list = get_all_news()
+    sitemap_items = ""
+    for news in news_list:
+        url = f"https://www.mychinesenews.my/news/{news['id']}"
+        lastmod = news['created_at'].strftime("%Y-%m-%dT%H:%M:%S+08:00")
+        sitemap_items += f"""
+  <url>
+    <loc>{url}</loc>
+    <lastmod>{lastmod}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>"""
+
+    sitemap_content = f"""<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+{sitemap_items}
+</urlset>"""
+
+    with open(SITEMAP_PATH, "w", encoding="utf-8") as f:
+        f.write(sitemap_content)
+
+@app.get("/sitemap.xml", response_class=FileResponse)
+async def sitemap_xml():
+    return FileResponse(SITEMAP_PATH, media_type="application/xml")
 
 async def periodic_fetch_news(interval=43200):
     while True:
@@ -138,9 +172,32 @@ def add_news(
     image_url: str = Form(None),
     category: str = Form('all')
 ):
-    insert_news(title, content, image_url, category)
-    #generate_sitemap()
+    news_id = insert_news(title, content, image_url, category)
+    append_news_to_sitemap(news_id)  # 追加到 sitemap
     return RedirectResponse("/maintenance", status_code=303)
+
+def append_news_to_sitemap(news_id: int):
+    news_item = get_news_by_id(news_id)
+    if not news_item:
+        return
+
+    url = f"https://www.mychinesenews.my/news/{news_item['id']}"
+    lastmod = news_item['created_at'].strftime("%Y-%m-%dT%H:%M:%S+08:00")
+    new_item = f"""
+  <url>
+    <loc>{url}</loc>
+    <lastmod>{lastmod}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>"""
+
+    # 读取现有 sitemap，插入到 </urlset> 前
+    if os.path.exists(SITEMAP_PATH):
+        with open(SITEMAP_PATH, "r", encoding="utf-8") as f:
+            content = f.read()
+        content = content.replace("</urlset>", new_item + "\n</urlset>")
+        with open(SITEMAP_PATH, "w", encoding="utf-8") as f:
+            f.write(content)
 
 @app.get("/maintenance", response_class=HTMLResponse)
 async def maintenance(request: Request):
@@ -156,12 +213,70 @@ async def update(
     category: str = Form('all')
 ):
     update_news(news_id, title, content, image_url, category)
+    update_news_in_sitemap(news_id)  # 同步更新 sitemap
     return RedirectResponse("/maintenance", status_code=303)
+
+def update_news_in_sitemap(news_id: int):
+    news_item = get_news_by_id(news_id)
+    if not news_item or not os.path.exists(SITEMAP_PATH):
+        return
+
+    url_to_update = f"https://www.mychinesenews.my/news/{news_id}"
+    new_url_block = f"""
+  <url>
+    <loc>{url_to_update}</loc>
+    <lastmod>{news_item['created_at'].strftime("%Y-%m-%dT%H:%M:%S+08:00")}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>"""
+
+    with open(SITEMAP_PATH, "r", encoding="utf-8") as f:
+        lines = f.readlines()
+
+    new_lines = []
+    skip_block = False
+    for line in lines:
+        if "<url>" in line and url_to_update in line:
+            skip_block = True  # 跳过原来的 url block
+            new_lines.append(new_url_block + "\n")  # 替换成新内容
+            continue
+        if skip_block and "</url>" in line:
+            skip_block = False
+            continue
+        if not skip_block:
+            new_lines.append(line)
+
+    with open(SITEMAP_PATH, "w", encoding="utf-8") as f:
+        f.writelines(new_lines)
 
 @app.post("/delete/{news_id}")
 async def delete(news_id: int):
     delete_news(news_id)
+    remove_news_from_sitemap(news_id)  # 同步删除 sitemap 中的新闻
     return RedirectResponse("/maintenance", status_code=303)
+
+def remove_news_from_sitemap(news_id: int):
+    url_to_remove = f"https://www.mychinesenews.my/news/{news_id}"
+    if not os.path.exists(SITEMAP_PATH):
+        return
+
+    with open(SITEMAP_PATH, "r", encoding="utf-8") as f:
+        lines = f.readlines()
+
+    new_lines = []
+    skip_block = False
+    for line in lines:
+        if "<url>" in line and url_to_remove in line:
+            skip_block = True  # 从 <url> 开始跳过
+            continue
+        if skip_block and "</url>" in line:
+            skip_block = False  # 跳过到 </url>，然后继续
+            continue
+        if not skip_block:
+            new_lines.append(line)
+
+    with open(SITEMAP_PATH, "w", encoding="utf-8") as f:
+        f.writelines(new_lines)
 
 # -------------------------- 启动 Uvicorn --------------------------
 if __name__ == "__main__":
