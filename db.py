@@ -92,7 +92,6 @@ def to_sgt(dt):
         timezone(timedelta(hours=8))
     )
 
-
 # -------------------- CURD 操作 --------------------
 def insert_news(title, content, image_url=None, category='all'):
     if not title or not content:
@@ -103,6 +102,7 @@ def insert_news(title, content, image_url=None, category='all'):
         ON DUPLICATE KEY UPDATE title=title
     """
     execute(query, (title, content, image_url, category), commit=True)
+    last_id = execute("SELECT LAST_INSERT_ID()", fetchone=True)[0]
 
 
 def update_news(news_id, title, content, image_url=None, category='all'):
