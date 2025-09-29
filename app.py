@@ -23,14 +23,24 @@ import os
 SITEMAP_PATH = "sitemap.xml"
 
 def init_sitemap():
-    # 如果 sitemap 已存在就跳过
     if os.path.exists(SITEMAP_PATH):
         return
-    news_list = get_all_news()
+
+    columns, rows = get_all_db()  # rows 是原始数据
+    # 找出列对应的索引
+    idx_id = columns.index("id")
+    idx_created = columns.index("created_at")
+
     sitemap_items = ""
-    for news in news_list:
-        url = f"https://www.mychinesenews.my/news/{news['id']}"
-        lastmod = news['created_at'].strftime("%Y-%m-%dT%H:%M:%S+08:00")
+    for row in rows:
+        news_id = row[idx_id]
+        created_at = row[idx_created]
+        # 如果是 datetime 对象
+        if hasattr(created_at, "strftime"):
+            lastmod = created_at.strftime("%Y-%m-%dT%H:%M:%S+08:00")
+        else:
+            lastmod = str(created_at)
+        url = f"https://www.mychinesenews.my/news/{news_id}"
         sitemap_items += f"""
   <url>
     <loc>{url}</loc>
