@@ -95,7 +95,8 @@ def to_sgt(dt):
 # -------------------- CURD 操作 --------------------
 def insert_news(title, content, image_url=None, category='all'):
     if not title or not content:
-        return
+        return None  # 更明确的返回值
+
     query = """
         INSERT INTO news (title, content, image_url, category)
         VALUES (%s, %s, %s, %s)
@@ -103,6 +104,8 @@ def insert_news(title, content, image_url=None, category='all'):
     """
     execute(query, (title, content, image_url, category), commit=True)
     last_id = execute("SELECT LAST_INSERT_ID()", fetchone=True)[0]
+
+    return last_id if last_id != 0 else None
 
 
 def update_news(news_id, title, content, image_url=None, category='all'):
