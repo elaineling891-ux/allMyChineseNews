@@ -116,6 +116,15 @@ async def disclaimer(request: Request):
 async def ads_txt():
     return "google.com, pub-2460023182833054, DIRECT, f08c47fec0942fa0"
 
+@app.get("/robots.txt", response_class=PlainTextResponse)
+async def robots_txt():
+    content = """User-agent: *
+Disallow:
+
+Sitemap: https://www.mychinesenews.my/sitemap.xml
+"""
+    return PlainTextResponse(content)
+
 # -------------------------- 管理 --------------------------
 @app.get("/admin", response_class=HTMLResponse)
 async def admin_get(request: Request):
