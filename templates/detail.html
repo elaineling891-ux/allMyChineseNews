@@ -30,6 +30,21 @@
 <meta property="og:url" content="https://globalnews-5ose.onrender.com/news/{{ news_item.id }}">
 <meta property="og:type" content="article">
 
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "NewsArticle",
+  "headline": "{{ news_item.title }}",
+  "datePublished": "{{ news_item.created_at.isoformat() }}",
+  "author": {
+    "@type": "Organization",
+    "name": "我报"
+  },
+  "description": "{{ news_item.content[:150] }}...",
+  "inLanguage": "zh-CN"
+}
+</script>
+
 <style>
 body {
   font-family: Arial, sans-serif;
