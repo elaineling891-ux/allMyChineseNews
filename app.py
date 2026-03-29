@@ -123,15 +123,14 @@ async def news_detail(request: Request, news_id: int):
     next_news = get_next_news(news_id, category)
 
     return templates.TemplateResponse(
-        "detail.html",
-        {
-            "request": request,
-            "news_item": news_item,
-            "prev_news": prev_news,
-            "next_news": next_news,
-            "year": datetime.now().year,
-        },
-    )
+    request=request,
+    name="detail.html",
+    context={
+        "item": news_item,
+        "year": datetime.now().year
+        # do not put "request" inside the context dict anymore
+    }
+)
 
 # -------------------------- API --------------------------
 @app.get("/api/news", response_class=JSONResponse)
