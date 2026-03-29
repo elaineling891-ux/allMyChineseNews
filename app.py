@@ -101,7 +101,11 @@ async def periodic_keep_alive(interval=300, retry_delay=60):
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
     news = get_all_news()
-    return templates.TemplateResponse("main.html", {"request": request, "news": news, "year": datetime.now().year})
+    return templates.TemplateResponse(
+    request=request, 
+    name="main.html", 
+    context={"news": news, "year": datetime.now().year}
+)
 
 @app.get("/category/{category}", response_class=HTMLResponse)
 async def category_page(request: Request, category: str = Path(...)):
