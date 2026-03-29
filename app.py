@@ -212,7 +212,7 @@ def append_news_to_sitemap(news_id: int):
 @app.get("/maintenance", response_class=HTMLResponse)
 async def maintenance(request: Request):
     columns, rows = get_all_db()
-    return templates.TemplateResponse("maintenance.html", {"request": request, "columns": columns, "rows": rows})
+    return templates.TemplateResponse("maintenance.html", {"request": request, "columns": columns, "rows": rows, "zip": zip})
 
 @app.post("/update/{news_id}")
 async def update(
