@@ -12,6 +12,7 @@ app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 templates.env.cache = None
 templates.env.auto_reload = True
+templates.env.enable_async = True
 
 # -------------------------- 启动事件 --------------------------
 @app.on_event("startup")
