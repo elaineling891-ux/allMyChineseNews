@@ -265,6 +265,10 @@ async def delete(news_id: int):
     remove_news_from_sitemap(news_id)  # 同步删除 sitemap 中的新闻
     return RedirectResponse("/maintenance", status_code=303)
 
+@app.get("/test")
+async def test(request: Request):
+    return templates.TemplateResponse("main.html", {"request": request})
+
 def remove_news_from_sitemap(news_id: int):
     url_to_remove = f"https://www.mychinesenews.my/news/{news_id}"
     if not os.path.exists(SITEMAP_PATH):
