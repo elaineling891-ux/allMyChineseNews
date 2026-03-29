@@ -34,7 +34,6 @@ async def startup_event():
     init_db()
     init_sitemap()
     # Start background tasks
-    asyncio.create_task(periodic_fetch_news())
     asyncio.create_task(periodic_keep_alive(300))
 
 # -------------------------- Sitemap Logic --------------------------
@@ -76,15 +75,6 @@ async def sitemap_xml():
     return FileResponse(SITEMAP_PATH, media_type="application/xml")
 
 # -------------------------- Background Tasks --------------------------
-async def periodic_fetch_news(interval=43200):
-    while True:
-        try:
-            print(f"⏳ [{datetime.now()}] 开始抓新闻...")
-            await asyncio.get_event_loop().run_in_executor(None, fetch_news)
-            print(f"✅ [{datetime.now()}] 抓新闻完成")
-        except Exception as e:
-            print("抓新闻出错:", e)
-        await asyncio.sleep(interval)
 
 KEEP_ALIVE_URLS = [
     "https://globalinternationalnews.onrender.com/",
