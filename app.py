@@ -126,10 +126,13 @@ async def category_page(request: Request, category: str = Path(...)):
 async def news_detail(request: Request, news_id: int):
     news_item = get_news_by_id(news_id)
     return templates.TemplateResponse(
-        request=request,
-        name="detail.html",
-        context={"item": news_item, "year": datetime.now().year}
-    )
+    request=request,
+    name="detail.html",
+    context={
+        "news_item": news_item,  # Change "item" to "news_item"
+        "year": datetime.now().year
+    }
+)
 
 # -------------------------- API --------------------------
 @app.get("/api/news", response_class=JSONResponse)
