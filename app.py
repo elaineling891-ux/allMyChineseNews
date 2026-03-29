@@ -14,7 +14,6 @@ from db import (
     update_news, delete_news, get_all_db, 
     get_all_news_by_category, get_prev_news, get_next_news
 )
-from harvest import fetch_news
 
 app = FastAPI()
 
