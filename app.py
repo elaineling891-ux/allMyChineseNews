@@ -8,11 +8,12 @@ from harvest import fetch_news
 from datetime import datetime
 import requests
 
+
 app = FastAPI()
+# Setup templates and static files
 templates = Jinja2Templates(directory="templates")
-templates.env.cache = None
-templates.env.auto_reload = True
-templates.env.enable_async = True
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
 
 # -------------------------- 启动事件 --------------------------
 @app.on_event("startup")
@@ -98,39 +99,38 @@ async def periodic_keep_alive(interval=300, retry_delay=60):
         await asyncio.sleep(interval)
 
 # -------------------------- 首页 --------------------------
-@app.get("/", response_class=HTMLResponse)
+@app.get("/")
 async def home(request: Request):
     news = get_all_news()
+    
+    # FIXED: Added 'request=' and 'name=' and moved news/year into 'context'
     return templates.TemplateResponse(
-    request=request, 
-    name="main.html", 
-    context={"news": news, "year": datetime.now().year}
-)
+        request=request, 
+        name="main.html", 
+        context={"news": news, "year": datetime.now().year}
+    )
+
 
 @app.get("/category/{category}", response_class=HTMLResponse)
 async def category_page(request: Request, category: str = Path(...)):
     news = get_all_news_by_category(category, skip=0, limit=20)
     return templates.TemplateResponse("category.html", {"request": request, "news": news, "category": category, "year": datetime.now().year})
-
-@app.get("/news/{news_id}", response_class=HTMLResponse)
+    
+@app.get("/news/{news_id}")
 async def news_detail(request: Request, news_id: int):
-    news_item = get_news_by_id(news_id)
-    if not news_item:
-        return HTMLResponse(content="新闻不存在", status_code=404)
-
-    category = news_item["category"]
-    prev_news = get_prev_news(news_id, category)
-    next_news = get_next_news(news_id, category)
-
+    # ... your logic to fetch a specific news item ...
+     news_item = get_news_by_id(news_id)
+    
+    # FIXED: Explicitly defined request, name, and context
     return templates.TemplateResponse(
-    request=request,
-    name="detail.html",
-    context={
-        "item": news_item,
-        "year": datetime.now().year
-        # do not put "request" inside the context dict anymore
-    }
-)
+        request=request,
+        name="detail.html",
+        context={
+            "item": news_item, 
+            "year": datetime.now().year
+        }
+    )
+
 
 # -------------------------- API --------------------------
 @app.get("/api/news", response_class=JSONResponse)
