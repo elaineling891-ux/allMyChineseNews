@@ -6,7 +6,7 @@ psycopg2-binary
 jinja2
 aiofiles
 deep-translator
-cohere
+cohere<5
 mysql-connector-python>=8.0.33
 python-dotenv>=1.1.1
 python-multipart
