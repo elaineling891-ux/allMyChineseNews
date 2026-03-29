@@ -267,7 +267,15 @@ async def delete(news_id: int):
 
 @app.get("/test")
 async def test(request: Request):
-    return templates.TemplateResponse("main.html", {"request": request})
+    news = get_all_news()
+    return templates.TemplateResponse(
+        "main.html",
+        {
+            "request": request,
+            "news": news,
+            "year": datetime.now().year
+        }
+    )
 
 def remove_news_from_sitemap(news_id: int):
     url_to_remove = f"https://www.mychinesenews.my/news/{news_id}"
