@@ -93,7 +93,7 @@ async def periodic_keep_alive(interval=300):
         await asyncio.sleep(interval)
 
 # -------------------------- 核心路由 (Main Routes) --------------------------
-@app.api_route("/", methods=["GET", "HEAD"])
+@app.get("/")
 async def home(request: Request):
     news = get_all_news()
     return templates.TemplateResponse(
